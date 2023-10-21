@@ -19,7 +19,7 @@ let package = Package(
 			targets: ["LNPopupController", "LNPopupController-ObjC"]),
 	],
 	dependencies: [
-        .package(url: "https://github.com/MQZHot/LNPopupController.git", from: "2.5.4")
+        .package(url: "https://github.com/MQZHot/LNPopupController.git", from: "1.0.0")
     ],
 	targets: [
 		.target(
