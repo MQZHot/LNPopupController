@@ -145,7 +145,7 @@ extern LNPopupInteractionStyle _LNPopupResolveInteractionStyleFromInteractionSty
 		return YES;
 	}
 	
-	return YES;
+	return NO;
 }
 
 @end
