@@ -7,6 +7,9 @@
 //
 
 import SwiftUI
+
+#if LNPOPUP
+
 import LNPopupController
 
 extension UIBlurEffect.Style {
@@ -53,10 +56,10 @@ fileprivate struct CellPaddedToggle<S>: View where S: StringProtocol {
 }
 
 struct SettingsView : View {
-	@AppStorage(PopupSettingsBarStyle) var barStyle: LNPopupBarStyle = .default
-	@AppStorage(PopupSettingsInteractionStyle) var interactionStyle: __LNPopupInteractionStyle = .default
-	@AppStorage(PopupSettingsCloseButtonStyle) var closeButtonStyle: LNPopupCloseButtonStyle = .default
-	@AppStorage(PopupSettingsProgressViewStyle) var progressViewStyle: LNPopupBarProgressViewStyle = .default
+	@AppStorage(PopupSettingsBarStyle) var barStyle: LNPopupBar.Style = .default
+	@AppStorage(PopupSettingsInteractionStyle) var interactionStyle: UIViewController.__PopupInteractionStyle = .default
+	@AppStorage(PopupSettingsCloseButtonStyle) var closeButtonStyle: LNPopupCloseButton.Style = .default
+	@AppStorage(PopupSettingsProgressViewStyle) var progressViewStyle: LNPopupBar.ProgressViewStyle = .default
 	@AppStorage(PopupSettingsMarqueeStyle) var marqueeStyle: Int = 0
 	@AppStorage(PopupSettingsVisualEffectViewBlurEffect) var blurEffectStyle: UIBlurEffect.Style = .default
 	
@@ -70,7 +73,10 @@ struct SettingsView : View {
 	@AppStorage(__LNPopupBarHideContentView) var hidePopupBarContentView: Bool = false
 	@AppStorage(__LNPopupBarHideShadow) var hidePopupBarShadow: Bool = false
 	@AppStorage(__LNPopupBarEnableLayoutDebug) var layoutDebug: Bool = false
-	@AppStorage(__LNPopupBarDisableDemoSceneColors) var disableDemoSceneColors: Bool = false
+	
+	@AppStorage(DemoAppDisableDemoSceneColors) var disableDemoSceneColors: Bool = false
+	@AppStorage(DemoAppEnableFunkyInheritedFont) var enableFunkyInheritedFont: Bool = false
+	@AppStorage(DemoAppEnableExternalScenes) var enableExternalScenes: Bool = false
 	
 	@Environment(\.sizeCategory) var sizeCategory
 	
@@ -79,39 +85,39 @@ struct SettingsView : View {
 	var body: some View {
 		Form {
 			Picker(selection: $barStyle) {
-				CellPaddedText("Default").tag(LNPopupBarStyle.default)
-				CellPaddedText("Compact").tag(LNPopupBarStyle.compact)
-				CellPaddedText("Prominent").tag(LNPopupBarStyle.prominent)
-				CellPaddedText("Floating").tag(LNPopupBarStyle.floating)
+				CellPaddedText("Default").tag(LNPopupBar.Style.default)
+				CellPaddedText("Compact").tag(LNPopupBar.Style.compact)
+				CellPaddedText("Prominent").tag(LNPopupBar.Style.prominent)
+				CellPaddedText("Floating").tag(LNPopupBar.Style.floating)
 			} label: {
 				Text("Bar Style")
 			}
 			
 			Picker(selection: $interactionStyle) {
-				CellPaddedText("Default").tag(__LNPopupInteractionStyle.default)
-				CellPaddedText("Drag").tag(__LNPopupInteractionStyle.drag)
-				CellPaddedText("Snap").tag(__LNPopupInteractionStyle.snap)
-				CellPaddedText("Scroll").tag(__LNPopupInteractionStyle.scroll)
-				CellPaddedText("None").tag(__LNPopupInteractionStyle.none)
+				CellPaddedText("Default").tag(UIViewController.__PopupInteractionStyle.default)
+				CellPaddedText("Drag").tag(UIViewController.__PopupInteractionStyle.drag)
+				CellPaddedText("Snap").tag(UIViewController.__PopupInteractionStyle.snap)
+				CellPaddedText("Scroll").tag(UIViewController.__PopupInteractionStyle.scroll)
+				CellPaddedText("None").tag(UIViewController.__PopupInteractionStyle.none)
 			} label: {
 				Text("Interaction Style")
 			}
 			
 			Picker(selection: $closeButtonStyle) {
-				CellPaddedText("Default").tag(LNPopupCloseButtonStyle.default)
-				CellPaddedText("Round").tag(LNPopupCloseButtonStyle.round)
-				CellPaddedText("Chevron").tag(LNPopupCloseButtonStyle.chevron)
-				CellPaddedText("Grabber").tag(LNPopupCloseButtonStyle.grabber)
-				CellPaddedText("None").tag(LNPopupCloseButtonStyle.none)
+				CellPaddedText("Default").tag(LNPopupCloseButton.Style.default)
+				CellPaddedText("Round").tag(LNPopupCloseButton.Style.round)
+				CellPaddedText("Chevron").tag(LNPopupCloseButton.Style.chevron)
+				CellPaddedText("Grabber").tag(LNPopupCloseButton.Style.grabber)
+				CellPaddedText("None").tag(LNPopupCloseButton.Style.none)
 			} label: {
 				Text("Close Button Style")
 			}
 			
 			Picker(selection: $progressViewStyle) {
-				CellPaddedText("Default").tag(LNPopupBarProgressViewStyle.default)
-				CellPaddedText("Top").tag(LNPopupBarProgressViewStyle.top)
-				CellPaddedText("Bottom").tag(LNPopupBarProgressViewStyle.bottom)
-				CellPaddedText("None").tag(LNPopupBarProgressViewStyle.none)
+				CellPaddedText("Default").tag(LNPopupBar.ProgressViewStyle.default)
+				CellPaddedText("Top").tag(LNPopupBar.ProgressViewStyle.top)
+				CellPaddedText("Bottom").tag(LNPopupBar.ProgressViewStyle.bottom)
+				CellPaddedText("None").tag(LNPopupBar.ProgressViewStyle.none)
 			} label: {
 				Text("Progress View Style")
 			}
@@ -177,15 +183,17 @@ struct SettingsView : View {
 				}
 			}
 			
-			Section {
-				CellPaddedToggle("Hides Bottom Bar When Pushed", isOn: !isLNPopupUIExample ? $hideBottomBar : Binding.constant(false))
-			} footer: {
-				if isLNPopupUIExample {
-					Text("Not supported in SwiftUI yet.")
-				} else {
-					Text("Sets the `hidesBottomBarWhenPushed` property of pushed controllers in standard demo scenes.")
-				}
-			}.disabled(isLNPopupUIExample)
+			if isLNPopupUIExample == false {
+				Section {
+					CellPaddedToggle("Hides Bottom Bar When Pushed", isOn: !isLNPopupUIExample ? $hideBottomBar : Binding.constant(false))
+				} footer: {
+					if isLNPopupUIExample {
+						Text("Not supported in SwiftUI yet.")
+					} else {
+						Text("Sets the `hidesBottomBarWhenPushed` property of pushed controllers in standard demo scenes.")
+					}
+				}.disabled(isLNPopupUIExample)
+			}
 			
 			Section {
 				CellPaddedToggle("Context Menu Interactions", isOn: $contextMenu)
@@ -211,6 +219,14 @@ struct SettingsView : View {
 				Text("Disables random background colors in the demo scenes.")
 			}
 			
+			if isLNPopupUIExample {
+				Section {
+					CellPaddedToggle("Enable Funky Inherited Font", isOn: $enableFunkyInheritedFont)
+				} footer: {
+					Text("Enables an environment font that is inherited by the popup bar.")
+				}
+			}
+			
 			Section {
 				CellPaddedToggle("Layout Debug", isOn: $layoutDebug)
 				CellPaddedToggle("Hide Content View", isOn: $hidePopupBarContentView)
@@ -225,6 +241,16 @@ struct SettingsView : View {
 				Text("Demonstration")
 			} footer: {
 				Text("Enables visualization of touches within the app, for demo purposes.")
+			}
+			
+			if isLNPopupUIExample {
+				Section {
+					CellPaddedToggle("Enable", isOn: $enableExternalScenes)
+				} header: {
+					Text("External Libraries")
+				} footer: {
+					Text("Enables scenes for testing with external libraries.")
+				}
 			}
 		}.pickerStyle(.inline)
 	}
@@ -256,7 +282,9 @@ class SettingsViewController: UIHostingController<SettingsView> {
 		UserDefaults.standard.removeObject(forKey: __LNPopupBarHideContentView)
 		UserDefaults.standard.removeObject(forKey: __LNPopupBarHideShadow)
 		UserDefaults.standard.removeObject(forKey: __LNPopupBarEnableLayoutDebug)
-		UserDefaults.standard.removeObject(forKey: __LNPopupBarDisableDemoSceneColors)
+		UserDefaults.standard.removeObject(forKey: DemoAppDisableDemoSceneColors)
+		UserDefaults.standard.removeObject(forKey: DemoAppEnableFunkyInheritedFont)
+		UserDefaults.standard.removeObject(forKey: DemoAppEnableExternalScenes)
 		
 		for key in [PopupSettingsBarStyle, PopupSettingsInteractionStyle, PopupSettingsCloseButtonStyle, PopupSettingsProgressViewStyle, PopupSettingsMarqueeStyle] {
 			UserDefaults.standard.removeObject(forKey: key)
@@ -278,6 +306,7 @@ struct SettingsNavView: View {
 		NavigationStack {
 			SettingsView()
 				.navigationTitle("Settings")
+				.navigationBarTitleDisplayMode(.inline)
 				.toolbar {
 					ToolbarItem(placement: .navigationBarLeading) {
 						Button("Reset") {
@@ -290,7 +319,29 @@ struct SettingsNavView: View {
 						}
 					}
 				}
-				.navigationBarTitleDisplayMode(.inline)
 		}.frame(minWidth: 320, minHeight: 480)
 	}
 }
+
+#else
+
+struct NoSettingsView : View {
+	var body: some View {
+		Text("No Settings")
+			.foregroundStyle(.secondary)
+			.frame(maxWidth: .infinity, maxHeight: .infinity)
+			.background(Color(UIColor.systemGroupedBackground))
+	}
+}
+
+class SettingsViewController: UIHostingController<NoSettingsView> {
+	required init?(coder aDecoder: NSCoder) {
+		super.init(coder: aDecoder, rootView: NoSettingsView())
+	}
+	
+	@IBAction func reset() {
+		
+	}
+}
+
+#endif

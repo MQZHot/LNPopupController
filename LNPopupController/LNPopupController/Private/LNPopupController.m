@@ -929,11 +929,19 @@ static CGFloat __smoothstep(CGFloat a, CGFloat b, CGFloat x)
 
 - (void)_configurePopupBarFromBottomBar
 {
-	self.popupBar.effectGroupingIdentifier = _bottomBar._ln_effectGroupingIdentifierIfAvailable;
-	//Schedule one more effect identifier refresh, in case it's not yet ready at this point.
-	dispatch_async(dispatch_get_main_queue(), ^{
+	[self _configurePopupBarFromBottomBarModifyingGroupingIdentifier:YES];
+}
+
+- (void)_configurePopupBarFromBottomBarModifyingGroupingIdentifier:(BOOL)modifyingGroupingIdentifier
+{
+	if(modifyingGroupingIdentifier == YES)
+	{
 		self.popupBar.effectGroupingIdentifier = _bottomBar._ln_effectGroupingIdentifierIfAvailable;
-	});
+		//Schedule one more effect identifier refresh, in case it's not yet ready at this point.
+		dispatch_async(dispatch_get_main_queue(), ^{
+			self.popupBar.effectGroupingIdentifier = _bottomBar._ln_effectGroupingIdentifierIfAvailable;
+		});
+	}
 	
 	if(self.popupBar.inheritsAppearanceFromDockingView == NO)
 	{
@@ -952,7 +960,14 @@ static CGFloat __smoothstep(CGFloat a, CGFloat b, CGFloat x)
 	//visualProvider.toolbarIsSmall
 	if([_bottomBar isKindOfClass:UIToolbar.class] &&  [[_bottomBar valueForKeyPath:vPTIS] boolValue] == YES)
 	{
-		appearanceToUse = [(UIToolbar*)_bottomBar compactAppearance];
+		UIToolbar* toolbar = (UIToolbar*)_bottomBar;
+		appearanceToUse = toolbar.compactAppearance;
+	}
+	
+	if(appearanceToUse == nil && [_bottomBar isKindOfClass:UITabBar.class])
+	{
+		UITabBar* tabBar = (UITabBar*)_bottomBar;
+		appearanceToUse = tabBar.selectedItem.standardAppearance ?: tabBar.standardAppearance;
 	}
 	
 #endif
@@ -962,7 +977,15 @@ static CGFloat __smoothstep(CGFloat a, CGFloat b, CGFloat x)
 		appearanceToUse = [(id<_LNPopupBarSupport>)_bottomBar standardAppearance];
 	}
 	
-	self.popupBar.systemTintColor = _bottomBar.tintColor;
+	UIColor* bottomBarTintColor = _bottomBar.tintColor;
+	if(_bottomBar.window != nil || [_bottomBar.superview.tintColor isEqual:bottomBarTintColor] == NO)
+	{
+		self.popupBar.systemTintColor = bottomBarTintColor;
+	}
+	else
+	{
+		self.popupBar.systemTintColor = nil;
+	}
 	
 	self.popupBar.systemAppearance = appearanceToUse;
 }

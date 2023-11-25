@@ -40,7 +40,7 @@
 - (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
 	[coordinator animateAlongsideTransitionInView:self.popupPresentationContainerViewController.view animation:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-		[self _setPopupItemButtonsWithTraitCollection:newCollection];
+		[self _setPopupItemButtonsWithTraitCollection:newCollection animated:context.animated];
 	} completion:nil];
 	
 	[super willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
@@ -57,7 +57,7 @@
 	{
 		_lastStyle = self.view.traitCollection.userInterfaceStyle;
 		
-		if([NSUserDefaults.standardUserDefaults boolForKey:__LNPopupBarDisableDemoSceneColors] == NO)
+		if([NSUserDefaults.standardUserDefaults boolForKey:DemoAppDisableDemoSceneColors] == NO)
 		{
 			self.view.backgroundColor = LNSeedAdaptiveInvertedColor(@"Popup");
 		}
@@ -75,7 +75,7 @@
 	NSLog(@"✓");
 }
 
-- (void)_setPopupItemButtonsWithTraitCollection:(UITraitCollection*)collection
+- (void)_setPopupItemButtonsWithTraitCollection:(UITraitCollection*)collection animated:(BOOL)animated
 {
 	BOOL useCompact = [[[NSUserDefaults standardUserDefaults] objectForKey:PopupSettingsBarStyle] unsignedIntegerValue] == LNPopupBarStyleCompact;
 	
@@ -114,13 +114,13 @@
 		
 		if(collection.horizontalSizeClass == UIUserInterfaceSizeClassCompact)
 		{
-			[self.popupItem setLeadingBarButtonItems:@[ play ] animated:YES];
-			[self.popupItem setTrailingBarButtonItems:@[ more ] animated:YES];
+			[self.popupItem setLeadingBarButtonItems:@[ play ] animated:animated];
+			[self.popupItem setTrailingBarButtonItems:@[ more ] animated:animated];
 		}
 		else
 		{
-			[self.popupItem setLeadingBarButtonItems:@[ prev, play, next ] animated:YES];
-			[self.popupItem setTrailingBarButtonItems:@[ more ] animated:YES];
+			[self.popupItem setLeadingBarButtonItems:@[ prev, play, next ] animated:animated];
+			[self.popupItem setTrailingBarButtonItems:@[ more ] animated:animated];
 		}
 	}
 	else
@@ -130,14 +130,14 @@
 		next.width = 50;
 		if(collection.horizontalSizeClass == UIUserInterfaceSizeClassCompact)
 		{
-			[self.popupItem setBarButtonItems:@[ play, next ] animated:YES];
+			[self.popupItem setBarButtonItems:@[ play, next ] animated:NO];
 		}
 		else
 		{
 			prev.image = [prev.image imageWithConfiguration:[UIImageSymbolConfiguration configurationWithScale:UIImageSymbolScaleMedium]];
 			next.image = [next.image imageWithConfiguration:[UIImageSymbolConfiguration configurationWithScale:UIImageSymbolScaleMedium]];
 			
-			[self.popupItem setBarButtonItems:@[ prev, play, next ] animated:YES];
+			[self.popupItem setBarButtonItems:@[ prev, play, next ] animated:NO];
 		}
 	}
 }
@@ -167,7 +167,7 @@
 		self.popupItem.subtitle = [LoremIpsum sentence];
 	}
 	
-	if([NSUserDefaults.standardUserDefaults boolForKey:__LNPopupBarDisableDemoSceneColors] == NO)
+	if([NSUserDefaults.standardUserDefaults boolForKey:DemoAppDisableDemoSceneColors] == NO)
 	{
 		self.popupItem.image = [UIImage imageNamed:@"genre7"];
 	}
@@ -175,7 +175,8 @@
 	{
 		self.popupItem.image = [UIImage imageNamed:@"genre_white"];
 	}
-	self.popupItem.progress = (float) arc4random() / UINT32_MAX;
+//	self.popupItem.progress = (float) arc4random() / UINT32_MAX;
+	self.popupItem.progress = 1.0;
 	
 	UILabel* topLabel = [UILabel new];
 	topLabel.text = NSLocalizedString(@"Top", @"");
@@ -280,12 +281,7 @@
 //	[customCloseButton setTitle:NSLocalizedString(@"Custom Close Button", @"") forState:UIControlStateNormal];
 //	customCloseButton.translatesAutoresizingMaskIntoConstraints = NO;
 //	[customCloseButton setTitleColor:UIColor.systemBackgroundColor forState:UIControlStateNormal];
-//
-//	if(@available(iOS 13.4, *))
-//	{
-//		customCloseButton.pointerInteractionEnabled = YES;
-//	}
-//
+//	customCloseButton.pointerInteractionEnabled = YES;
 //	[customCloseButton addTarget:self action:@selector(_closePopup) forControlEvents:UIControlEventTouchUpInside];
 //	[self.view addSubview:customCloseButton];
 //	[NSLayoutConstraint activateConstraints:@[

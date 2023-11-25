@@ -13,8 +13,10 @@
 #import "DemoPopupContentViewController.h"
 #import "RandomColors.h"
 #import "SettingKeys.h"
-#import "SplitViewController.h"
+#import "LNSplitViewController.h"
+#if LNPOPUP
 #import "LNPopupControllerExample-Swift.h"
+#endif
 #import "LNPopupDemoContextMenuInteraction.h"
 @import UIKit;
 
@@ -53,6 +55,22 @@
 	BOOL _alreadyPresentedAutomatically;
 }
 
+- (UITabBarItem *)tabBarItem
+{
+	if(self.tabBarController != nil)
+	{
+		UIViewController* target = self;
+		if(self.navigationController != nil)
+		{
+			target = self.navigationController;
+		}
+		
+		super.tabBarItem.image = [UIImage systemImageNamed:[NSString stringWithFormat:@"%lu.square.fill", [self.tabBarController.viewControllers indexOfObject:target] + 1]];
+	}
+	
+	return super.tabBarItem;
+}
+
 - (void)viewDidLoad
 {
 	[super viewDidLoad];
@@ -68,6 +86,10 @@
 			NSUInteger tabIdx = [self.tabBarController.viewControllers indexOfObject:self.navigationController ?: self];
 			self.colorSeedString = [NSString stringWithFormat:@"tab_%@", @(tabIdx)];
 		}
+		else if(self.navigationController != nil)
+		{
+			self.colorSeedString = [NSString stringWithFormat:@"tab_109"];
+		}
 		else
 		{
 			self.colorSeedString = @"nil";
@@ -75,7 +97,7 @@
 		self.colorSeedCount = 0;
 	}
 	
-	if([NSUserDefaults.standardUserDefaults boolForKey:__LNPopupBarDisableDemoSceneColors] == NO)
+	if([NSUserDefaults.standardUserDefaults boolForKey:DemoAppDisableDemoSceneColors] == NO)
 	{
 		NSString* seed = [NSString stringWithFormat:@"%@%@", self.colorSeedString, self.colorSeedCount == 0 ? @"" : [NSString stringWithFormat:@"%@", @(self.colorSeedCount)]];
 		self.view.backgroundColor = LNSeedAdaptiveColor(seed);
@@ -86,9 +108,14 @@
 	}
 }
 
-- (void)viewWillAppear:(BOOL)animated
+- (void)viewSafeAreaInsetsDidChange
 {
-	[super viewWillAppear:animated];
+	[super viewSafeAreaInsetsDidChange];
+}
+
+- (void)viewIsAppearing:(BOOL)animated
+{
+	[super viewIsAppearing:animated];
 	
 	[self updateBottomDockingViewEffectForBarPresentation];
 	
@@ -168,7 +195,7 @@
 
 - (UIViewController*)_targetVCForPopup
 {
-	if([self.splitViewController isKindOfClass:SplitViewControllerPrimaryPopup.class] && self.navigationController != [self.ln_splitViewController viewControllerForColumn:LNSplitViewControllerColumnPrimary])
+	if([self.splitViewController isKindOfClass:LNSplitViewControllerPrimaryPopup.class] && self.navigationController != [self.splitViewController viewControllerForColumn:UISplitViewControllerColumnPrimary])
 	{
 		return nil;
 	}
@@ -178,17 +205,17 @@
 	{
 		[vcs addObject:self.navigationController];
 	}
-	if([self.splitViewController isKindOfClass:SplitViewControllerSecondaryPopup.class] && [vcs containsObject:[self.ln_splitViewController viewControllerForColumn:LNSplitViewControllerColumnPrimary]])
+	if([self.splitViewController isKindOfClass:LNSplitViewControllerSecondaryPopup.class] && [vcs containsObject:[self.splitViewController viewControllerForColumn:UISplitViewControllerColumnPrimary]])
 	{
 		return nil;
 	}
 	
-	if([self.splitViewController isKindOfClass:SplitViewControllerSecondaryPopup.class] && [vcs containsObject:[self.ln_splitViewController viewControllerForColumn:LNSplitViewControllerColumnSupplementary]])
+	if([self.splitViewController isKindOfClass:LNSplitViewControllerSecondaryPopup.class] && [vcs containsObject:[self.splitViewController viewControllerForColumn:UISplitViewControllerColumnSupplementary]])
 	{
 		return nil;
 	}
 	
-	if([self.splitViewController isKindOfClass:SplitViewControllerGlobalPopup.class])
+	if([self.splitViewController isKindOfClass:LNSplitViewControllerGlobalPopup.class])
 	{
 		return self.splitViewController;
 	}
@@ -387,6 +414,16 @@
 - (void)popupPresentationController:(UIViewController *)popupPresentationController didClosePopupWithContentController:(UIViewController *)popupContentController animated:(BOOL)animated
 {
 	
+}
+
+@end
+
+@interface PassthroughNavigationController : UINavigationController @end
+@implementation PassthroughNavigationController
+
+- (UITabBarItem *)tabBarItem
+{
+	return self.viewControllers.firstObject.tabBarItem;
 }
 
 @end

@@ -26,6 +26,9 @@ extern NSString* const PopupSettingsContextMenuEnabled;
 extern NSString* const __LNPopupBarHideContentView;
 extern NSString* const __LNPopupBarHideShadow;
 extern NSString* const __LNPopupBarEnableLayoutDebug;
-extern NSString* const __LNPopupBarDisableDemoSceneColors;
+
+extern NSString* const DemoAppDisableDemoSceneColors;
+extern NSString* const DemoAppEnableFunkyInheritedFont;
+extern NSString* const DemoAppEnableExternalScenes;
 
 NS_ASSUME_NONNULL_END

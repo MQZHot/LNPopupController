@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22503" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="cyK-Q5-zYP">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="cyK-Q5-zYP">
     <device id="retina6_72" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22503"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -25,7 +26,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="390" height="43.666667938232422"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Tab Bar Controller + Navigation Controller" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="7FA-3I-y3z">
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Tab Bar Controller + Navigation Controller" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="7FA-3I-y3z">
                                                     <rect key="frame" x="20" y="0.0" width="350" height="43.666667938232422"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
@@ -48,7 +49,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="390" height="43.666667938232422"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Navigation Controller" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="EXy-Xb-dWO">
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Navigation Controller" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="EXy-Xb-dWO">
                                                     <rect key="frame" x="20" y="0.0" width="350" height="43.666667938232422"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
@@ -71,7 +72,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="390" height="43.666667938232422"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Tab Bar Controller" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="4WM-5E-jJw">
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Tab Bar Controller" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="4WM-5E-jJw">
                                                     <rect key="frame" x="20" y="0.0" width="350" height="43.666667938232422"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
@@ -94,7 +95,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="390" height="43.666667938232422"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="View Controller" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="9s3-H0-xJU">
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="View Controller" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="9s3-H0-xJU">
                                                     <rect key="frame" x="20" y="0.0" width="350" height="43.666667938232422"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
@@ -110,14 +111,14 @@
                                             </segue>
                                         </connections>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="splitm" textLabel="Nfv-xp-DFu" style="IBUITableViewCellStyleDefault" id="1Qc-Ql-xyu">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="splitm" textLabel="Nfv-xp-DFu" style="IBUITableViewCellStyleDefault" id="1Qc-Ql-xyu" customClass="SizeClassGalleryCell">
                                         <rect key="frame" x="20" y="230.00000381469727" width="390" height="43.666667938232422"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="1Qc-Ql-xyu" id="F2D-0P-sjk">
                                             <rect key="frame" x="0.0" y="0.0" width="390" height="43.666667938232422"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Split View Controller (Primary)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="Nfv-xp-DFu">
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Split View Controller (Primary)" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="Nfv-xp-DFu">
                                                     <rect key="frame" x="20" y="0.0" width="350" height="43.666667938232422"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
@@ -133,14 +134,14 @@
                                             </segue>
                                         </connections>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="splitg" textLabel="rpx-bu-B1q" style="IBUITableViewCellStyleDefault" id="TtF-bg-cC5" userLabel="splits">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="splitg" textLabel="rpx-bu-B1q" style="IBUITableViewCellStyleDefault" id="TtF-bg-cC5" userLabel="splits" customClass="SizeClassGalleryCell">
                                         <rect key="frame" x="20" y="273.66667175292969" width="390" height="43.666667938232422"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="TtF-bg-cC5" id="QOS-U4-Cmr">
                                             <rect key="frame" x="0.0" y="0.0" width="390" height="43.666667938232422"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Split View Controller (Secondary)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="rpx-bu-B1q">
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Split View Controller (Secondary)" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="rpx-bu-B1q">
                                                     <rect key="frame" x="20" y="0.0" width="350" height="43.666667938232422"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
@@ -150,43 +151,20 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                         <connections>
-                                            <segue destination="syE-JZ-XA1" kind="showDetail" identifier="splitg" id="19O-Tx-Ntx">
+                                            <segue destination="syE-JZ-XA1" kind="showDetail" identifier="splits" id="19O-Tx-Ntx">
                                                 <segue key="commit" inheritsFrom="parent" id="t7R-kM-r3g"/>
                                                 <segue key="preview" inheritsFrom="commit" id="7fn-D0-hm6"/>
                                             </segue>
                                         </connections>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="splitg" textLabel="mRf-7b-D7v" style="IBUITableViewCellStyleDefault" id="Z91-wv-EaJ">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="splitg" textLabel="rjJ-Ax-bGN" style="IBUITableViewCellStyleDefault" id="TjV-b9-KIw" userLabel="splita" customClass="SizeClassGalleryCell">
                                         <rect key="frame" x="20" y="317.33333969116211" width="390" height="43.666667938232422"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Z91-wv-EaJ" id="1rv-3u-xHE">
-                                            <rect key="frame" x="0.0" y="0.0" width="390" height="43.666667938232422"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Split View Controller (Global)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="mRf-7b-D7v">
-                                                    <rect key="frame" x="20" y="0.0" width="350" height="43.666667938232422"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                            </subviews>
-                                        </tableViewCellContentView>
-                                        <connections>
-                                            <segue destination="F0W-R7-jVc" kind="presentation" id="SDh-r0-h83">
-                                                <segue key="commit" inheritsFrom="parent" id="stp-Qs-DKr"/>
-                                                <segue key="preview" inheritsFrom="commit" id="44r-L6-81t"/>
-                                            </segue>
-                                        </connections>
-                                    </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="splitg" textLabel="rjJ-Ax-bGN" style="IBUITableViewCellStyleDefault" id="TjV-b9-KIw" userLabel="splita">
-                                        <rect key="frame" x="20" y="361.00000762939453" width="390" height="43.666667938232422"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="TjV-b9-KIw" id="59B-nU-bAE">
                                             <rect key="frame" x="0.0" y="0.0" width="390" height="43.666667938232422"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Split View Controller (All)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="rjJ-Ax-bGN">
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Split View Controller (All)" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="rjJ-Ax-bGN">
                                                     <rect key="frame" x="20" y="0.0" width="350" height="43.666667938232422"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
@@ -196,9 +174,32 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                         <connections>
-                                            <segue destination="OMG-ri-qb5" kind="presentation" id="ie4-if-ZuB">
+                                            <segue destination="OMG-ri-qb5" kind="showDetail" identifier="splita" id="ie4-if-ZuB">
                                                 <segue key="commit" inheritsFrom="parent" id="5pE-ej-gUV"/>
                                                 <segue key="preview" inheritsFrom="commit" id="pb3-Pz-4cU"/>
+                                            </segue>
+                                        </connections>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="splitg" textLabel="mRf-7b-D7v" style="IBUITableViewCellStyleDefault" id="Z91-wv-EaJ" customClass="SizeClassGalleryCell">
+                                        <rect key="frame" x="20" y="361.00000762939453" width="390" height="43.666667938232422"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Z91-wv-EaJ" id="1rv-3u-xHE">
+                                            <rect key="frame" x="0.0" y="0.0" width="390" height="43.666667938232422"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Split View Controller (Global)" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="mRf-7b-D7v">
+                                                    <rect key="frame" x="20" y="0.0" width="350" height="43.666667938232422"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <segue destination="F0W-R7-jVc" kind="showDetail" identifier="splitg" id="SDh-r0-h83">
+                                                <segue key="commit" inheritsFrom="parent" id="stp-Qs-DKr"/>
+                                                <segue key="preview" inheritsFrom="commit" id="44r-L6-81t"/>
                                             </segue>
                                         </connections>
                                     </tableViewCell>
@@ -213,7 +214,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="390" height="43.666667938232422"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Music" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="KHO-fT-c7X">
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Music" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="KHO-fT-c7X">
                                                     <rect key="frame" x="20" y="0.0" width="350" height="43.666667938232422"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
@@ -240,7 +241,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="390" height="43.666667938232422"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Maps (Auto Layout)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="rWD-1P-SlK">
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Maps (Auto Layout)" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="rWD-1P-SlK">
                                                     <rect key="frame" x="20" y="0.0" width="350" height="43.666667938232422"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
@@ -334,7 +335,7 @@
         <!--Split View Controller Secondary Popup-->
         <scene sceneID="KO7-t9-gOw">
             <objects>
-                <splitViewController modalPresentationStyle="fullScreen" preferredDisplayMode="beside" id="syE-JZ-XA1" customClass="SplitViewControllerSecondaryPopup" sceneMemberID="viewController">
+                <splitViewController modalPresentationStyle="fullScreen" preferredDisplayMode="beside" id="syE-JZ-XA1" customClass="LNSplitViewControllerSecondaryPopup" sceneMemberID="viewController">
                     <connections>
                         <segue destination="GHH-ob-Ng8" kind="relationship" relationship="masterViewController" id="T58-y9-xu1"/>
                         <segue destination="l54-z5-xcG" kind="relationship" relationship="detailViewController" id="3nI-aH-Ed7"/>
@@ -348,7 +349,7 @@
         <!--Split View Controller Global Popup-->
         <scene sceneID="iRx-bt-bfy">
             <objects>
-                <splitViewController modalPresentationStyle="fullScreen" preferredDisplayMode="twoDisplace" behavior="displace" id="F0W-R7-jVc" customClass="SplitViewControllerGlobalPopup" sceneMemberID="viewController">
+                <splitViewController modalPresentationStyle="fullScreen" preferredDisplayMode="twoDisplace" behavior="displace" id="F0W-R7-jVc" customClass="LNSplitViewControllerGlobalPopup" sceneMemberID="viewController">
                     <connections>
                         <segue destination="l54-z5-xcG" kind="relationship" relationship="detailViewController" id="kZv-eg-X5o"/>
                         <segue destination="l54-z5-xcG" kind="relationship" relationship="masterViewController" id="Qc4-nZ-cyX"/>
@@ -362,7 +363,7 @@
         <!--Split View Controller Primary Popup-->
         <scene sceneID="0aA-gd-S0Z">
             <objects>
-                <splitViewController modalPresentationStyle="fullScreen" allowDoubleColumnStyle="YES" preferredDisplayMode="beside" id="NWj-M1-Csm" customClass="SplitViewControllerPrimaryPopup" sceneMemberID="viewController">
+                <splitViewController modalPresentationStyle="fullScreen" allowDoubleColumnStyle="YES" preferredDisplayMode="beside" id="NWj-M1-Csm" customClass="LNSplitViewControllerPrimaryPopup" sceneMemberID="viewController">
                     <connections>
                         <segue destination="GHH-ob-Ng8" kind="relationship" relationship="masterViewController" id="IDA-Po-Fia"/>
                         <segue destination="l54-z5-xcG" kind="relationship" relationship="detailViewController" id="04d-1K-Lzo"/>
@@ -457,7 +458,7 @@
                             <constraint firstItem="dF7-sj-hbZ" firstAttribute="top" secondItem="KIX-8f-BFw" secondAttribute="top" constant="4" id="wc3-WW-zft"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" systemItem="featured" id="CHZ-OA-bCn"/>
+                    <tabBarItem key="tabBarItem" title="Tab" image="1.square.fill" catalog="system" id="wDA-8g-o9a"/>
                     <toolbarItems>
                         <barButtonItem title="Present Bar" id="L0d-F2-GTi">
                             <connections>
@@ -554,14 +555,14 @@
             </objects>
             <point key="canvasLocation" x="-459" y="-1782"/>
         </scene>
-        <!--Navigation Controller-->
+        <!--Tab-->
         <scene sceneID="ouL-tO-EtQ">
             <objects>
-                <navigationController id="okN-9b-CNT" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" systemItem="favorites" id="moV-Wz-fLa"/>
+                <navigationController id="okN-9b-CNT" customClass="PassthroughNavigationController" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Tab" image="1.square.fill" catalog="system" id="moV-Wz-fLa"/>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="Ezi-fS-9Ny">
-                        <rect key="frame" x="0.0" y="59" width="430" height="96"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="Ezi-fS-9Ny">
+                        <rect key="frame" x="0.0" y="59" width="430" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -587,7 +588,6 @@
                         <segue destination="l54-z5-xcG" kind="relationship" relationship="viewControllers" id="jsa-yG-B84"/>
                         <segue destination="l54-z5-xcG" kind="relationship" relationship="viewControllers" id="sDT-1s-aAn"/>
                         <segue destination="l54-z5-xcG" kind="relationship" relationship="viewControllers" id="nft-Ob-3Yp"/>
-                        <segue destination="l54-z5-xcG" kind="relationship" relationship="viewControllers" id="FwL-Jm-YrX"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="JzB-yf-S2V" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -611,7 +611,7 @@
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="ie4-if-ZuB"/>
-        <segue reference="8mZ-rN-tfh"/>
+        <segue reference="QzR-Fj-x6F"/>
         <segue reference="vYe-8f-bz7"/>
         <segue reference="08s-5F-WiR"/>
         <segue reference="7V8-5m-eAW"/>
@@ -621,10 +621,11 @@
         <segue reference="iD8-2E-cMh"/>
         <segue reference="SDh-r0-h83"/>
         <segue reference="19O-Tx-Ntx"/>
-        <segue reference="gSl-m3-ZVG"/>
+        <segue reference="UEc-Fk-ILA"/>
     </inferredMetricsTieBreakers>
     <color key="tintColor" systemColor="systemPinkColor"/>
     <resources>
+        <image name="1.square.fill" catalog="system" width="128" height="114"/>
         <image name="dock.arrow.down.rectangle" catalog="system" width="128" height="93"/>
         <image name="dock.arrow.up.rectangle" catalog="system" width="128" height="93"/>
         <image name="gears" width="25" height="25"/>
@@ -635,7 +636,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemPinkColor">
-            <color red="1" green="0.17647058823529413" blue="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.1764705882" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

@@ -335,7 +335,7 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 		[self addSubview:_floatingBackgroundShadowView];
 		
 		_contentView = [[_LNPopupBarContentView alloc] initWithEffect:nil];
-		_contentView.clipsToBounds = YES;
+		_contentView.clipsToBounds = NO;
 		[self addSubview:_contentView];
 		
 		_contentMaskView = [UIView new];
@@ -483,6 +483,8 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 
 - (void)_layoutCustomBarController
 {
+	_customBarViewController.view.preservesSuperviewLayoutMargins = NO;
+	
 	if(_customBarViewController == nil || _customBarViewController.view.translatesAutoresizingMaskIntoConstraints == NO)
 	{
 		return;
@@ -522,6 +524,8 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 	_backgroundView.layer.mask.frame = _backgroundView.bounds;
 	
 	BOOL isFloating = _resolvedStyle == LNPopupBarStyleFloating;
+	BOOL isProminent = _resolvedStyle == LNPopupBarStyleProminent;
+	BOOL isCustom = _resolvedStyle == LNPopupBarStyleCustom;
 	
 	CGRect contentFrame;
 	if(isFloating)
@@ -553,9 +557,15 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 	}
 	else
 	{
-		BOOL isProminent = _resolvedStyle == LNPopupBarStyleProminent;
-		CGFloat inset = (isProminent ? MAX(self.safeAreaInsets.left, self.layoutMargins.left) : self.safeAreaInsets.left) - 8;
-		contentFrame = UIEdgeInsetsInsetRect(frame, UIEdgeInsetsMake(0, inset, 0, 0));
+		if(isCustom)
+		{
+			contentFrame = frame;
+		}
+		else
+		{
+			CGFloat inset = (isProminent ? MAX(self.safeAreaInsets.left, self.layoutMargins.left) : self.safeAreaInsets.left) - 8;
+			contentFrame = UIEdgeInsetsInsetRect(frame, UIEdgeInsetsMake(0, inset, 0, 0));
+		}
 		
 		_backgroundGradientMaskView.hidden = YES;
 		_backgroundView.maskView = nil;
@@ -568,7 +578,7 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 	_contentView.hidden = [NSUserDefaults.standardUserDefaults boolForKey:@"__LNPopupBarHideContentView"];
 #endif
 	
-	_contentView.preservesSuperviewLayoutMargins = !isFloating;
+	_contentView.preservesSuperviewLayoutMargins = !isFloating && !isCustom;
 	
 	_contentMaskView.frame = [_contentView convertRect:self.bounds fromView:self];
 	_backgroundMaskView.frame = self.bounds;
@@ -608,14 +618,33 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 	_bottomShadowView.frame = CGRectMake(0, _backgroundView.bounds.size.height - h, _backgroundView.bounds.size.width, h);
 	
 	CGFloat cornerRadius = _contentView.layer.cornerRadius / 2.5;
-	if(self.progressViewStyle == LNPopupBarProgressViewStyleTop)
+	CGFloat width = 0;
+	CGFloat height = 0;
+	CGFloat offset = 0;
+	if(isFloating)
 	{
-		_progressView.frame = CGRectMake(cornerRadius, 0, _contentView.bounds.size.width - 2 * cornerRadius, 1.5);
+		[_contentView.contentView insertSubview:_progressView aboveSubview:_toolbar];
+		width = _contentView.bounds.size.width;
+		height = _contentView.bounds.size.height;
 	}
 	else
 	{
-		_progressView.frame = CGRectMake(cornerRadius, _contentView.bounds.size.height - 2.5, _contentView.bounds.size.width - 2 * cornerRadius, 1.5);
+		[self insertSubview:_progressView aboveSubview:_contentView];
+		
+		offset = self.safeAreaInsets.left;
+		width = self.bounds.size.width - self.safeAreaInsets.left - self.safeAreaInsets.right;
+		height = self.bounds.size.height;
 	}
+	
+	if(self.progressViewStyle == LNPopupBarProgressViewStyleTop)
+	{
+		_progressView.frame = CGRectMake(cornerRadius + offset, 0, width - 2 * cornerRadius, 1.5);
+	}
+	else
+	{
+		_progressView.frame = CGRectMake(cornerRadius + offset, height - 2.5, width - 2 * cornerRadius, 1.5);
+	}
+	
 	
 	[self _layoutTitles];
 	
@@ -779,6 +808,11 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 
 - (void)setSystemAppearance:(UIBarAppearance *)systemAppearance
 {
+	if([_systemAppearance isEqual:systemAppearance] == YES)
+	{
+		return;
+	}
+	
 	_systemAppearance = [systemAppearance copy];
 	
 	[self _recalcActiveAppearanceChain];
@@ -988,6 +1022,18 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 	_swiftuiTitleContentView = swiftuiTitleContentView;
 	_swiftuiTitleContentView.backgroundColor = UIColor.clearColor;
 	_swiftuiTitleContentView.translatesAutoresizingMaskIntoConstraints = NO;
+	
+	[self _setNeedsTitleLayoutRemovingLabels:YES];
+}
+
+- (void)setSwiftuiInheritedFont:(UIFont *)swiftuiInheritedFont
+{
+	if([_swiftuiInheritedFont isEqual:swiftuiInheritedFont])
+	{
+		return;
+	}
+	
+	_swiftuiInheritedFont = swiftuiInheritedFont;
 	
 	[self _setNeedsTitleLayoutRemovingLabels:YES];
 }
@@ -1308,6 +1354,11 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 //DO NOT CHANGE NAME! Used by LNPopupUI
 - (UIFont*)_titleFont
 {
+	if(_swiftuiInheritedFont)
+	{
+		return _swiftuiInheritedFont;
+	}
+	
 	CGFloat fontSize = 15;
 	UIFontWeight fontWeight = UIFontWeightMedium;
 	UIFontTextStyle textStyle = UIFontTextStyleBody;
@@ -1345,6 +1396,11 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 //DO NOT CHANGE NAME! Used by LNPopupUI
 - (UIFont*)_subtitleFont
 {
+	if(_swiftuiInheritedFont)
+	{
+		return [UIFont fontWithDescriptor:_swiftuiInheritedFont.fontDescriptor size:_swiftuiInheritedFont.pointSize - 2.5];
+	}
+	
 	CGFloat fontSize = 15;
 	UIFontWeight fontWeight = UIFontWeightRegular;
 	UIFontTextStyle textStyle = UIFontTextStyleBody;
@@ -1392,8 +1448,16 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 		[self _updateTitleInsetsForProminentBar:&titleInsets];
 	}
 	
-	_titlesViewLeadingConstraint.constant = titleInsets.left;
-	_titlesViewTrailingConstraint.constant = titleInsets.right;
+	if([UIView userInterfaceLayoutDirectionForSemanticContentAttribute:self.semanticContentAttribute] == UIUserInterfaceLayoutDirectionLeftToRight)
+	{
+		_titlesViewLeadingConstraint.constant = titleInsets.left;
+		_titlesViewTrailingConstraint.constant = titleInsets.right;
+	}
+	else
+	{
+		_titlesViewLeadingConstraint.constant = titleInsets.right;
+		_titlesViewTrailingConstraint.constant = titleInsets.left;
+	}
 	
 #if DEBUG
 	if(_LNEnableBarLayoutDebug())

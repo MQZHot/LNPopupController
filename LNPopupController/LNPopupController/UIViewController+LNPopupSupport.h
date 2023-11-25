@@ -14,6 +14,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class UIViewController;
+
 NS_REFINED_FOR_SWIFT
 /// The default popup snap percent. See `UIViewController.popupSnapPercent` for more information.
 extern const double LNSnapPercentDefault;
@@ -22,10 +24,6 @@ NS_REFINED_FOR_SWIFT
 /// Available interaction styles with the popup bar and popup content view.
 typedef NS_ENUM(NSInteger, LNPopupInteractionStyle) {
 	/// The default interaction style for the current environment.
-	///
-	/// On iOS, the default interaction style is snap.
-	///
-	/// On macOS, the default interaction style is scroll.
 	LNPopupInteractionStyleDefault,
 	
 	/// Drag interaction style.
@@ -39,7 +37,7 @@ typedef NS_ENUM(NSInteger, LNPopupInteractionStyle) {
 	
 	/// No interaction
 	LNPopupInteractionStyleNone = 0xFFFF
-} NS_SWIFT_NAME(__LNPopupInteractionStyle);
+} NS_SWIFT_NAME(UIViewController.__PopupInteractionStyle);
 
 /// The state of the popup presentation.
 typedef NS_ENUM(NSInteger, LNPopupPresentationState){
@@ -55,7 +53,7 @@ typedef NS_ENUM(NSInteger, LNPopupPresentationState){
 	LNPopupPresentationStateHidden LN_DEPRECATED_API("Use LNPopupPresentationStateBarHidden instead.") = LNPopupPresentationStateBarHidden,
 	LNPopupPresentationStateClosed LN_DEPRECATED_API("Use LNPopupPresentationStateBarPresented instead.") = LNPopupPresentationStateBarPresented,
 	LNPopupPresentationStateTransitioning LN_DEPRECATED_API("Should no longer be used.") = 2,
-};
+} NS_SWIFT_NAME(UIViewController.PopupPresentationState);
 
 /// Popup content support for ``UIViewController`` subclasses.
 @interface UIViewController (LNPopupContent)
