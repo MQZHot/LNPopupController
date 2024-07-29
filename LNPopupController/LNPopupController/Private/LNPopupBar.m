@@ -12,11 +12,32 @@
 #import "_LNPopupSwizzlingUtils.h"
 #import "NSAttributedString+LNPopupSupport.h"
 #import "_LNPopupBarShadowedImageView.h"
+#import "UIView+LNPopupSupportPrivate.h"
 
 #ifdef DEBUG
+static NSUserDefaults* __LNDebugUserDefaults(void)
+{
+	static NSUserDefaults* rv = nil;
+	
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		SEL sel = NSSelectorFromString(@"settingDefaults");
+		if([NSUserDefaults respondsToSelector:sel])
+		{
+			rv = [NSUserDefaults valueForKey:@"settingDefaults"];
+		}
+		else
+		{
+			rv = NSUserDefaults.standardUserDefaults;
+		}
+	});
+	
+	return rv;
+}
+
 static BOOL _LNEnableBarLayoutDebug(void)
 {
-	return [NSUserDefaults.standardUserDefaults boolForKey:@"__LNPopupBarEnableLayoutDebug"];
+	return [__LNDebugUserDefaults() boolForKey:@"__LNPopupBarEnableLayoutDebug"];
 }
 #endif
 
@@ -182,14 +203,20 @@ const CGFloat LNPopupBarHeightFloating = 64.0;
 const CGFloat LNPopupBarProminentImageWidth = 48.0;
 const CGFloat LNPopupBarFloatingImageWidth = 40.0;
 
-const UIBlurEffectStyle LNBackgroundStyleInherit = -9876;
-
 static BOOL __animatesItemSetter = NO;
 
 @interface LNPopupBar () <_LNPopupToolbarLayoutDelegate>
 
+- (void)_windowWillRotate:(NSNotification*)note;
+- (void)_windowDidRotate:(NSNotification*)note;
+- (UIFont*)_titleFont;
+- (UIColor*)_titleColor;
+- (UIFont*)_subtitleFont;
+- (UIColor*)_subtitleColor;
+
 @end
 
+__attribute__((objc_direct_members))
 @implementation LNPopupBar
 {
 	BOOL _delaysBarButtonItemLayout;
@@ -452,6 +479,11 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 	[self layoutIfNeeded];
 	
 	[self._barDelegate _traitCollectionForPopupBarDidChange:self];
+	if(previousTraitCollection.userInterfaceStyle != self.traitCollection.userInterfaceStyle)
+	{
+		[self _appearanceDidChange];
+	}
+	
 	if(UIContentSizeCategoryCompareToCategory(previousTraitCollection.preferredContentSizeCategory, self.traitCollection.preferredContentSizeCategory) != NSOrderedSame)
 	{
 		[self._barDelegate _popupBarMetricsDidChange:self];
@@ -490,6 +522,8 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 		return;
 	}
 	
+	_customBarViewController.view.autoresizingMask = UIViewAutoresizingNone;
+	
 	CGRect frame = _contentView.bounds;
 	frame.size.height = _customBarViewController.preferredContentSize.height;
 	_customBarViewController.view.frame = frame;
@@ -526,6 +560,7 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 	BOOL isFloating = _resolvedStyle == LNPopupBarStyleFloating;
 	BOOL isProminent = _resolvedStyle == LNPopupBarStyleProminent;
 	BOOL isCustom = _resolvedStyle == LNPopupBarStyleCustom;
+	BOOL isRTL = [UIView userInterfaceLayoutDirectionForSemanticContentAttribute:self.semanticContentAttribute] == UIUserInterfaceLayoutDirectionRightToLeft;
 	
 	CGRect contentFrame;
 	if(isFloating)
@@ -552,7 +587,7 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 		_floatingBackgroundShadowView.cornerRadius = 14;
 		
 #if DEBUG
-		_floatingBackgroundShadowView.hidden = [NSUserDefaults.standardUserDefaults boolForKey:@"__LNPopupBarHideShadow"];
+		_floatingBackgroundShadowView.hidden = [__LNDebugUserDefaults() boolForKey:@"__LNPopupBarHideShadow"];
 #endif
 	}
 	else
@@ -563,8 +598,19 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 		}
 		else
 		{
-			CGFloat inset = (isProminent ? MAX(self.safeAreaInsets.left, self.layoutMargins.left) : self.safeAreaInsets.left) - 8;
-			contentFrame = UIEdgeInsetsInsetRect(frame, UIEdgeInsetsMake(0, inset, 0, 0));
+			UIEdgeInsets insets;
+			if(isRTL)
+			{
+				CGFloat inset = (isProminent ? MAX(self.safeAreaInsets.right, self.layoutMargins.right) : self.safeAreaInsets.right) - 8;
+				insets = UIEdgeInsetsMake(0, 0, 0, inset);
+			}
+			else
+			{
+				CGFloat inset = (isProminent ? MAX(self.safeAreaInsets.left, self.layoutMargins.left) : self.safeAreaInsets.left) - 8;
+				insets = UIEdgeInsetsMake(0, inset, 0, 0);
+			}
+			
+			contentFrame = UIEdgeInsetsInsetRect(frame, insets);
 		}
 		
 		_backgroundGradientMaskView.hidden = YES;
@@ -575,7 +621,7 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 	}
 	_contentView.frame = contentFrame;
 #if DEBUG
-	_contentView.hidden = [NSUserDefaults.standardUserDefaults boolForKey:@"__LNPopupBarHideContentView"];
+	_contentView.hidden = [__LNDebugUserDefaults() boolForKey:@"__LNPopupBarHideContentView"];
 #endif
 	
 	_contentView.preservesSuperviewLayoutMargins = !isFloating && !isCustom;
@@ -607,10 +653,6 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 	
 	[_contentView.contentView insertSubview:_imageView aboveSubview:_toolbar];
 	[_contentView.contentView insertSubview:_titlesView aboveSubview:_imageView];
-	if(_customBarViewController != nil)
-	{
-		[_contentView.contentView insertSubview:_customBarViewController.view aboveSubview:_bottomShadowView];
-	}
 	
 	UIScreen* screen = self.window.screen ?: UIScreen.mainScreen;
 	CGFloat h = 1 / screen.scale;
@@ -648,7 +690,7 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 	
 	[self _layoutTitles];
 	
-	CGFloat titleSpacing = 1 + (1 / MAX(1, self.window.screen.scale));
+	CGFloat titleSpacing = 1 + (1 / MAX(1, screen.scale));
 	if(_resolvedStyle == LNPopupBarStyleCompact)
 	{
 		titleSpacing = 0;
@@ -820,6 +862,11 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 
 - (void)setStandardAppearance:(LNPopupBarAppearance *)standardAppearance
 {
+	if([_standardAppearance isEqual:standardAppearance] == YES)
+	{
+		return;
+	}
+	
 	_standardAppearance = [standardAppearance copy];
 	if(_standardAppearance == nil)
 	{
@@ -880,7 +927,8 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 	
 	if(isFloating)
 	{
-		_contentView.effect = self.activeAppearance.floatingBackgroundEffect;
+		id effect = [self.activeAppearance floatingBackgroundEffectForTraitCollection:self.traitCollection];
+		_contentView.effect = effect;
 		
 		__auto_type floatingBackgroundColor = self.activeAppearance.floatingBackgroundColor;
 		__auto_type floatingBackgroundImage = self.activeAppearance.floatingBackgroundImage;
@@ -1020,8 +1068,13 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 	}
 	
 	_swiftuiTitleContentView = swiftuiTitleContentView;
-	_swiftuiTitleContentView.backgroundColor = UIColor.clearColor;
-	_swiftuiTitleContentView.translatesAutoresizingMaskIntoConstraints = NO;
+	
+	if(_swiftuiTitleContentView != nil)
+	{
+		[_swiftuiTitleContentView _ln_freezeInsets];
+		_swiftuiTitleContentView.backgroundColor = UIColor.clearColor;
+		_swiftuiTitleContentView.translatesAutoresizingMaskIntoConstraints = NO;
+	}
 	
 	[self _setNeedsTitleLayoutRemovingLabels:YES];
 }
@@ -1058,11 +1111,18 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 		_swiftHacksWindow1.hidden = YES;
 		_swiftHacksWindow1 = nil;
 	}
-	_swiftHacksWindow1 = [[UIWindow alloc] initWithWindowScene:self.window.windowScene];
-	_swiftHacksWindow1.frame = CGRectMake(-4000, 0, 400, 400);
-	_swiftHacksWindow1.rootViewController = _swiftuiHiddenLeadingController;
-	_swiftHacksWindow1.hidden = NO;
-	_swiftHacksWindow1.alpha = 0.0;
+	
+	if(_swiftuiHiddenLeadingController != nil)
+	{
+		[UIView performWithoutAnimation:^{
+			_swiftHacksWindow1 = [[UIWindow alloc] initWithWindowScene:self.window.windowScene];
+			_swiftHacksWindow1.frame = CGRectMake(-4000, 0, 400, 400);
+			_swiftHacksWindow1.rootViewController = _swiftuiHiddenLeadingController;
+			_swiftHacksWindow1.hidden = NO;
+			_swiftHacksWindow1.alpha = 0.0;
+			[_swiftHacksWindow1 layoutSubviews];
+		}];
+	}
 	
 	[self _fixupSwiftUIControllersWithBarStyle];
 }
@@ -1087,11 +1147,18 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 		_swiftHacksWindow2.hidden = YES;
 		_swiftHacksWindow2 = nil;
 	}
-	_swiftHacksWindow2 = [[UIWindow alloc] initWithWindowScene:self.window.windowScene];
-	_swiftHacksWindow2.frame = CGRectMake(-4000, 0, 400, 400);
-	_swiftHacksWindow2.rootViewController = _swiftuiHiddenTrailingController;
-	_swiftHacksWindow2.hidden = NO;
-	_swiftHacksWindow2.alpha = 0.0;
+	
+	if(_swiftuiHiddenTrailingController != nil)
+	{
+		[UIView performWithoutAnimation:^{
+			_swiftHacksWindow2 = [[UIWindow alloc] initWithWindowScene:self.window.windowScene];
+			_swiftHacksWindow2.frame = CGRectMake(-4000, 0, 400, 400);
+			_swiftHacksWindow2.rootViewController = _swiftuiHiddenTrailingController;
+			_swiftHacksWindow2.hidden = NO;
+			_swiftHacksWindow2.alpha = 0.0;
+			[_swiftHacksWindow2 layoutSubviews];
+		}];
+	}
 	
 	[self _fixupSwiftUIControllersWithBarStyle];
 }
@@ -1474,10 +1541,12 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 		{
 			[_titlesView addArrangedSubview:_swiftuiTitleContentView];
 			[_titlesView layoutIfNeeded];
-			UIView* textView = _swiftuiTitleContentView.subviews.firstObject;
-			[NSLayoutConstraint activateConstraints:@[
-				[_swiftuiTitleContentView.heightAnchor constraintEqualToAnchor:textView.heightAnchor],
-			]];
+			if(unavailable(iOS 17.0, *)) {
+				UIView* textView = _swiftuiTitleContentView.subviews.firstObject;
+				[NSLayoutConstraint activateConstraints:@[
+					[_swiftuiTitleContentView.heightAnchor constraintEqualToAnchor:textView.heightAnchor],
+				]];
+			}
 		}
 		else
 		{
@@ -1673,9 +1742,6 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 	}
 	else
 	{
-		[_titleLabel restartLabel];
-		[_subtitleLabel restartLabel];
-		
 		[self _recalculateCoordinatedMarqueeScrollIfNeeded];
 	}
 }
@@ -1775,7 +1841,7 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 		
 		[_customBarViewController _activeAppearanceDidChange:self.activeAppearance];
 		
-		[self.contentView addSubview:_customBarViewController.view];
+		[_contentView.contentView insertSubview:_customBarViewController.view aboveSubview:_bottomShadowView];
 		
 		if(_customBarViewController.view.translatesAutoresizingMaskIntoConstraints == NO)
 		{
@@ -1951,12 +2017,12 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 		return;
 	}
 	
-	[animator addAnimations:^{
-		if(_customBarViewController == nil || _customBarViewController.wantsDefaultHighlightGestureRecognizer == YES)
-		{
+	if(_customBarViewController == nil || _customBarViewController.wantsDefaultHighlightGestureRecognizer == YES)
+	{
+		[animator addAnimations:^{
 			[self setHighlighted:YES animated:YES];
-		}
-	}];
+		}];
+	}
 }
 
 - (void)pointerInteraction:(UIPointerInteraction *)interaction willExitRegion:(UIPointerRegion *)region animator:(id<UIPointerInteractionAnimating>)animator  API_AVAILABLE(ios(13.4))
@@ -1968,12 +2034,12 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 		return;
 	}
 	
-	[animator addAnimations:^{
-		if(_customBarViewController == nil || _customBarViewController.wantsDefaultHighlightGestureRecognizer == YES)
-		{
+	if(_customBarViewController == nil || _customBarViewController.wantsDefaultHighlightGestureRecognizer == YES)
+	{
+		[animator addAnimations:^{
 			[self setHighlighted:NO animated:YES];
-		}
-	}];
+		}];
+	}
 }
 
 #pragma mark _LNPopupToolbarLayoutDelegate
@@ -1989,133 +2055,3 @@ static inline __attribute__((always_inline)) LNPopupBarProgressViewStyle _LNPopu
 }
 
 @end
-
-#pragma mark - Deprecations
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-
-@implementation LNPopupBar (Deprecated)
-
-- (BOOL)inheritsVisualStyleFromDockingView
-{
-	return self.inheritsAppearanceFromDockingView;
-}
-
-- (void)setInheritsVisualStyleFromDockingView:(BOOL)inheritsVisualStyleFromDockingView
-{
-	self.inheritsAppearanceFromDockingView = inheritsVisualStyleFromDockingView;
-}
-
-- (void)setBackgroundStyle:(UIBlurEffectStyle)backgroundStyle
-{
-	UIBlurEffectStyle blurEffectStyle = backgroundStyle == LNBackgroundStyleInherit ? UIBlurEffectStyleSystemChromeMaterial : backgroundStyle;
-	
-	self.standardAppearance.backgroundEffect = [UIBlurEffect effectWithStyle:blurEffectStyle];
-}
-
-- (UIBlurEffectStyle)backgroundStyle
-{
-	return [[self.standardAppearance.backgroundEffect valueForKey:@"style"] unsignedIntegerValue];
-}
-
-- (void)setBarTintColor:(UIColor *)barTintColor
-{
-	self.standardAppearance.backgroundColor = barTintColor;
-}
-
-- (UIColor *)barTintColor
-{
-	return self.standardAppearance.backgroundColor;
-}
-
-- (void)setTranslucent:(BOOL)translucent
-{
-	if(translucent)
-	{
-		[self.standardAppearance configureWithDefaultBackground];
-	}
-	else
-	{
-		[self.standardAppearance configureWithOpaqueBackground];
-	}
-}
-
-- (BOOL)isTranslucent
-{
-	return self.standardAppearance.backgroundEffect == nil;
-}
-
-- (void)setTitleTextAttributes:(NSDictionary<NSAttributedStringKey,id> *)titleTextAttributes
-{
-	self.standardAppearance.titleTextAttributes = titleTextAttributes;
-}
-
-- (NSDictionary<NSAttributedStringKey,id> *)titleTextAttributes
-{
-	return self.standardAppearance.titleTextAttributes;
-}
-
-- (void)setSubtitleTextAttributes:(NSDictionary<NSAttributedStringKey,id> *)subtitleTextAttributes
-{
-	self.standardAppearance.subtitleTextAttributes = subtitleTextAttributes;
-}
-
-- (NSDictionary<NSAttributedStringKey,id> *)subtitleTextAttributes
-{
-	return self.standardAppearance.subtitleTextAttributes;
-}
-
-- (void)setMarqueeScrollEnabled:(BOOL)marqueeScrollEnabled
-{
-	self.standardAppearance.marqueeScrollEnabled = marqueeScrollEnabled;
-}
-
-- (BOOL)marqueeScrollEnabled
-{
-	return self.standardAppearance.marqueeScrollEnabled;
-}
-
-- (void)setMarqueeScrollRate:(CGFloat)marqueeScrollRate
-{
-	self.standardAppearance.marqueeScrollRate = marqueeScrollRate;
-}
-
-- (CGFloat)marqueeScrollRate
-{
-	return self.standardAppearance.marqueeScrollRate;
-}
-
-- (void)setMarqueeScrollDelay:(NSTimeInterval)marqueeScrollDelay
-{
-	self.standardAppearance.marqueeScrollDelay = marqueeScrollDelay;
-}
-
-- (NSTimeInterval)marqueeScrollDelay
-{
-	return self.standardAppearance.marqueeScrollDelay;
-}
-
-- (void)setCoordinateMarqueeScroll:(BOOL)coordinateMarqueeScroll
-{
-	self.standardAppearance.coordinateMarqueeScroll = coordinateMarqueeScroll;
-}
-
-- (BOOL)coordinateMarqueeScroll
-{
-	return self.standardAppearance.coordinateMarqueeScroll;
-}
-
-- (NSArray<UIBarButtonItem *> *)leftBarButtonItems
-{
-	return self.leadingBarButtonItems;
-}
-
-- (NSArray<UIBarButtonItem *> *)rightBarButtonItems
-{
-	return self.trailingBarButtonItems;
-}
-
-@end
-
-#pragma clang diagnostic pop

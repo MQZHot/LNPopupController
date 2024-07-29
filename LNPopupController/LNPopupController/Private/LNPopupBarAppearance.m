@@ -17,6 +17,11 @@ static NSString* const aCC = @"YXBwZWFyYW5jZTpjYXRlZ29yaWVzQ2hhbmdlZDo=";
 static NSString* const cO = @"Y2hhbmdlT2JzZXJ2ZXI=";
 
 @implementation LNPopupBarAppearance
+{
+	BOOL _wantsDynamicFloatingBackgroundEffect;
+}
+
+@synthesize floatingBackgroundEffect=_floatingBackgroundEffect;
 
 static NSArray* __notifiedProperties = nil;
 
@@ -182,12 +187,36 @@ static NSArray* __notifiedProperties = nil;
 	return rv;
 }
 
+- (UIBlurEffect *)floatingBackgroundEffectForTraitCollection:(UITraitCollection*)traitCollection
+{
+	if(_wantsDynamicFloatingBackgroundEffect == NO)
+	{
+		return _floatingBackgroundEffect;
+	}
+	
+	if(traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark)
+	{
+		return [UIBlurEffect effectWithStyle:UIBlurEffectStyleProminent];
+	}
+	
+	
+	return [UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemChromeMaterial];
+}
+
+- (void)setFloatingBackgroundEffect:(UIBlurEffect *)floatingBackgroundEffect
+{
+	_wantsDynamicFloatingBackgroundEffect = NO;
+	[self willChangeValueForKey:@"floatingBackgroundEffect"];
+	_floatingBackgroundEffect = floatingBackgroundEffect;
+	[self didChangeValueForKey:@"floatingBackgroundEffect"];
+}
+
 - (void)configureWithDefaultHighlightColor
 {
 	_highlightColor = [[UIColor alloc] initWithDynamicProvider:^UIColor * _Nonnull(UITraitCollection * _Nonnull traitCollection) {
 		if(traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark)
 		{
-			return [UIColor.whiteColor colorWithAlphaComponent:0.15];
+			return [UIColor.whiteColor colorWithAlphaComponent:0.1];
 		}
 		else
 		{
@@ -217,7 +246,7 @@ static NSArray* __notifiedProperties = nil;
 
 + (UIColor*)_defaultProminentShadowColor
 {
-	return [UIColor.blackColor colorWithAlphaComponent:0.15];
+	return [UIColor.blackColor colorWithAlphaComponent:0.22];
 }
 
 + (UIColor*)_defaultSecondaryShadowColor
@@ -238,21 +267,21 @@ static NSArray* __notifiedProperties = nil;
 {
 	_imageShadow = [self _defaultImageShadow];
 
-	if(@available(iOS 17.0, *))
-	{
-		_imageShadow.shadowColor = [UIColor colorWithDynamicProvider:^UIColor * _Nonnull(UITraitCollection * _Nonnull traitCollection) {
-			UIColor* rv = [traitCollection objectForTrait:_LNPopupDominantColorTrait.class];
-			if(rv == nil)
-			{
-				rv = LNPopupBarAppearance._defaultSecondaryShadowColor;
-			}
-			else
-			{
-				rv = [rv colorWithAlphaComponent:0.15];
-			}
-			return rv;
-		}];
-	}
+//	if(@available(iOS 17.0, *))
+//	{
+//		_imageShadow.shadowColor = [UIColor colorWithDynamicProvider:^UIColor * _Nonnull(UITraitCollection * _Nonnull traitCollection) {
+//			UIColor* rv = [traitCollection objectForTrait:_LNPopupDominantColorTrait.class];
+//			if(rv == nil)
+//			{
+//				rv = LNPopupBarAppearance._defaultSecondaryShadowColor;
+//			}
+//			else
+//			{
+//				rv = [rv colorWithAlphaComponent:0.15];
+//			}
+//			return rv;
+//		}];
+//	}
 }
 
 - (void)configureWithStaticImageShadow
@@ -276,13 +305,20 @@ static NSArray* __notifiedProperties = nil;
 
 - (void)configureWithDefaultFloatingBackground
 {
-	UIBarAppearance* temp = [UIBarAppearance new];
-	[temp configureWithDefaultBackground];
-	
-	self.floatingBackgroundColor = temp.backgroundColor;
-	self.floatingBackgroundImage = temp.backgroundImage;
+	self.floatingBackgroundColor = [[UIColor alloc] initWithDynamicProvider:^UIColor * _Nonnull(UITraitCollection * _Nonnull traitCollection) {
+		if(traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark)
+		{
+			return [UIColor.whiteColor colorWithAlphaComponent:0.1];
+		}
+		else
+		{
+			return UIColor.clearColor;
+		}
+	}];;
+	self.floatingBackgroundImage = nil;
 	self.floatingBackgroundEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemChromeMaterial];
-	self.floatingBackgroundImageContentMode = temp.backgroundImageContentMode;
+	_wantsDynamicFloatingBackgroundEffect = YES;
+	self.floatingBackgroundImageContentMode = UIViewContentModeScaleToFill;
 	self.floatingBarBackgroundShadow = self._defaultFloatingBarBackgroundShadow;
 	
 	[self _notify];
@@ -296,6 +332,7 @@ static NSArray* __notifiedProperties = nil;
 	self.floatingBackgroundColor = temp.backgroundColor;
 	self.floatingBackgroundImage = temp.backgroundImage;
 	self.floatingBackgroundEffect = temp.backgroundEffect;
+	_wantsDynamicFloatingBackgroundEffect = NO;
 	self.floatingBackgroundImageContentMode = temp.backgroundImageContentMode;
 	self.floatingBarBackgroundShadow = self._defaultFloatingBarBackgroundShadow;
 	
@@ -310,6 +347,7 @@ static NSArray* __notifiedProperties = nil;
 	self.floatingBackgroundColor = temp.backgroundColor;
 	self.floatingBackgroundImage = temp.backgroundImage;
 	self.floatingBackgroundEffect = temp.backgroundEffect;
+	_wantsDynamicFloatingBackgroundEffect = NO;
 	self.floatingBackgroundImageContentMode = temp.backgroundImageContentMode;
 	self.floatingBarBackgroundShadow = self._defaultFloatingBarBackgroundShadow;
 	

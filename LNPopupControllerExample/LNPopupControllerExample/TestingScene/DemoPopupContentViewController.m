@@ -57,7 +57,7 @@
 	{
 		_lastStyle = self.view.traitCollection.userInterfaceStyle;
 		
-		if([NSUserDefaults.standardUserDefaults boolForKey:DemoAppDisableDemoSceneColors] == NO)
+		if([NSUserDefaults.settingDefaults boolForKey:PopupSettingDisableDemoSceneColors] == NO)
 		{
 			self.view.backgroundColor = LNSeedAdaptiveInvertedColor(@"Popup");
 		}
@@ -77,7 +77,7 @@
 
 - (void)_setPopupItemButtonsWithTraitCollection:(UITraitCollection*)collection animated:(BOOL)animated
 {
-	BOOL useCompact = [[[NSUserDefaults standardUserDefaults] objectForKey:PopupSettingsBarStyle] unsignedIntegerValue] == LNPopupBarStyleCompact;
+	BOOL useCompact = [[NSUserDefaults.settingDefaults objectForKey:PopupSettingBarStyle] unsignedIntegerValue] == LNPopupBarStyleCompact;
 	
 	UIBarButtonItem* play = [[UIBarButtonItem alloc] initWithImage:LNSystemImage(@"play.fill", useCompact) style:UIBarButtonItemStylePlain target:self action:@selector(button:)];
 	play.accessibilityLabel = NSLocalizedString(@"Play", @"");
@@ -156,18 +156,27 @@
 		return;
 	}
 	
-	if([NSUserDefaults.standardUserDefaults boolForKey:@"NSForceRightToLeftWritingDirection"])
+	uint32_t titleLowerLimit = 2;
+	uint32_t titleUpperLimit = 5;
+	
+	uint32_t subtitleLowerLimit = 4;
+	uint32_t subtitleUpperLimit = 16;
+	
+	if([NSUserDefaults.settingDefaults boolForKey:PopupSettingMarqueeEnabled] == YES)
 	{
-		self.popupItem.title = @"עברית";
-		self.popupItem.subtitle = @"עברית";
-	}
-	else
-	{
-		self.popupItem.title = [LoremIpsum sentence];
-		self.popupItem.subtitle = [LoremIpsum sentence];
+		subtitleLowerLimit = 10;
 	}
 	
-	if([NSUserDefaults.standardUserDefaults boolForKey:DemoAppDisableDemoSceneColors] == NO)
+	self.popupItem.title = [[LoremIpsum wordsWithNumber:arc4random_uniform(titleUpperLimit - titleLowerLimit) + titleLowerLimit] capitalizedString];
+	self.popupItem.subtitle = [[LoremIpsum wordsWithNumber:arc4random_uniform(subtitleUpperLimit - subtitleLowerLimit) + subtitleLowerLimit] valueForKey:@"li_stringByCapitalizingFirstLetter"];
+	
+	if([NSUserDefaults.standardUserDefaults boolForKey:PopupSettingForceRTL])
+	{
+		self.popupItem.title = [self.popupItem.title stringByApplyingTransform:NSStringTransformLatinToHebrew reverse:NO];
+		self.popupItem.subtitle = [self.popupItem.subtitle stringByApplyingTransform:NSStringTransformLatinToHebrew reverse:NO];
+	}
+	
+	if([NSUserDefaults.settingDefaults boolForKey:PopupSettingDisableDemoSceneColors] == NO)
 	{
 		self.popupItem.image = [UIImage imageNamed:@"genre7"];
 	}
@@ -206,8 +215,13 @@
 	
 	UILabel* leadingMarginLabel = [UILabel new];
 	leadingMarginLabel.text = NSLocalizedString(@"|-Leading (Margin)", @"");
+	leadingMarginLabel.textAlignment = NSTextAlignmentLeft;
 	leadingMarginLabel.textColor = [UIColor systemBackgroundColor];
 	leadingMarginLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleHeadline];
+	leadingMarginLabel.adjustsFontForContentSizeCategory = YES;
+//	leadingMarginLabel.adjustsFontSizeToFitWidth = YES;
+	leadingMarginLabel.numberOfLines = 0;
+	leadingMarginLabel.lineBreakMode = NSLineBreakByWordWrapping;
 	leadingMarginLabel.translatesAutoresizingMaskIntoConstraints = NO;
 	[self.view addSubview:leadingMarginLabel];
 	[NSLayoutConstraint activateConstraints:@[
@@ -217,19 +231,31 @@
 	
 	UILabel* trailingMarginLabel = [UILabel new];
 	trailingMarginLabel.text = NSLocalizedString(@"Trailing (Margin)-|", @"");
+	trailingMarginLabel.textAlignment = NSTextAlignmentRight;
 	trailingMarginLabel.textColor = [UIColor systemBackgroundColor];
 	trailingMarginLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleHeadline];
+	trailingMarginLabel.adjustsFontForContentSizeCategory = YES;
+//	trailingMarginLabel.adjustsFontSizeToFitWidth = YES;
+	trailingMarginLabel.numberOfLines = 0;
+	trailingMarginLabel.lineBreakMode = NSLineBreakByWordWrapping;
 	trailingMarginLabel.translatesAutoresizingMaskIntoConstraints = NO;
 	[self.view addSubview:trailingMarginLabel];
 	[NSLayoutConstraint activateConstraints:@[
 		[trailingMarginLabel.trailingAnchor constraintEqualToAnchor:self.view.layoutMarginsGuide.trailingAnchor],
-		[trailingMarginLabel.topAnchor constraintEqualToAnchor:topLabel.bottomAnchor constant:60]
+		[trailingMarginLabel.topAnchor constraintEqualToAnchor:topLabel.bottomAnchor constant:60],
+		[trailingMarginLabel.leadingAnchor constraintGreaterThanOrEqualToAnchor:leadingMarginLabel.trailingAnchor constant:8],
+		[trailingMarginLabel.widthAnchor constraintEqualToAnchor:leadingMarginLabel.widthAnchor]
 	]];
 	
 	UILabel* leadingSafeAreaLabel = [UILabel new];
 	leadingSafeAreaLabel.text = NSLocalizedString(@"|-Leading (Safe Area)", @"");
+	leadingSafeAreaLabel.textAlignment = NSTextAlignmentLeft;
 	leadingSafeAreaLabel.textColor = [UIColor systemBackgroundColor];
 	leadingSafeAreaLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleHeadline];
+	leadingSafeAreaLabel.adjustsFontForContentSizeCategory = YES;
+//	leadingSafeAreaLabel.adjustsFontSizeToFitWidth = YES;
+	leadingSafeAreaLabel.numberOfLines = 0;
+	leadingSafeAreaLabel.lineBreakMode = NSLineBreakByWordWrapping;
 	leadingSafeAreaLabel.translatesAutoresizingMaskIntoConstraints = NO;
 	[self.view addSubview:leadingSafeAreaLabel];
 	[NSLayoutConstraint activateConstraints:@[
@@ -239,13 +265,20 @@
 	
 	UILabel* trailingSafeAreaLabel = [UILabel new];
 	trailingSafeAreaLabel.text = NSLocalizedString(@"Trailing (Safe Area)-|", @"");
+	trailingSafeAreaLabel.textAlignment = NSTextAlignmentRight;
 	trailingSafeAreaLabel.textColor = [UIColor systemBackgroundColor];
 	trailingSafeAreaLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleHeadline];
+	trailingSafeAreaLabel.adjustsFontForContentSizeCategory = YES;
+//	trailingSafeAreaLabel.adjustsFontSizeToFitWidth = YES;
+	trailingSafeAreaLabel.numberOfLines = 0;
+	trailingSafeAreaLabel.lineBreakMode = NSLineBreakByWordWrapping;
 	trailingSafeAreaLabel.translatesAutoresizingMaskIntoConstraints = NO;
 	[self.view addSubview:trailingSafeAreaLabel];
 	[NSLayoutConstraint activateConstraints:@[
 		[trailingSafeAreaLabel.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor],
-		[trailingSafeAreaLabel.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0]
+		[trailingSafeAreaLabel.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0],
+		[trailingSafeAreaLabel.leadingAnchor constraintGreaterThanOrEqualToAnchor:leadingSafeAreaLabel.trailingAnchor constant:8],
+		[trailingSafeAreaLabel.widthAnchor constraintEqualToAnchor:leadingSafeAreaLabel.widthAnchor]
 	]];
 	
 	self.popupItem.accessibilityLabel = NSLocalizedString(@"Custom popup bar accessibility label", @"");
@@ -343,6 +376,11 @@
 - (UIStatusBarAnimation)preferredStatusBarUpdateAnimation
 {
 	return UIStatusBarAnimationFade;//Slide;
+}
+
+- (BOOL)prefersHomeIndicatorAutoHidden
+{
+	return YES;
 }
 
 @end

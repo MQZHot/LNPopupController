@@ -8,17 +8,24 @@
 
 #import "IntroWebViewController.h"
 #import "SafeSystemImages.h"
+#import "LNPopupControllerExample-Bridging-Header.h"
 @import WebKit;
 @import LNPopupController;
 
 @interface IntroWebViewController ()
 {
 	WKWebView* _webView;
+	UIView* _topColorView;
 }
 
 @end
 
 @implementation IntroWebViewController
+
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+	return UIStatusBarStyleLightContent;
+}
 
 - (void)viewDidLoad
 {
@@ -32,10 +39,12 @@
 	_webView.scrollView.automaticallyAdjustsScrollIndicatorInsets = NO;
 	[self.view addSubview:_webView];
 	
-	UIBlurEffectStyle style = UIBlurEffectStyleSystemThinMaterial;
-	UIVisualEffectView* effectView = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:style]];
-	effectView.translatesAutoresizingMaskIntoConstraints = NO;
-	[self.view addSubview:effectView];
+//	UIBlurEffectStyle style = UIBlurEffectStyleSystemThinMaterial;
+//	_effectView = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:style]];
+	_topColorView = [UIView new];
+	_topColorView.backgroundColor = [UIColor colorWithRed:0.12 green:0.14 blue:0.15 alpha:1.0];
+	_topColorView.translatesAutoresizingMaskIntoConstraints = NO;
+	[self.view addSubview:_topColorView];
 	
 	[NSLayoutConstraint activateConstraints:@[
 		[self.view.topAnchor constraintEqualToAnchor:_webView.topAnchor],
@@ -43,10 +52,10 @@
 		[self.view.leadingAnchor constraintEqualToAnchor:_webView.leadingAnchor],
 		[self.view.trailingAnchor constraintEqualToAnchor:_webView.trailingAnchor],
 		
-		[self.view.topAnchor constraintEqualToAnchor:effectView.topAnchor],
-		[self.view.safeAreaLayoutGuide.topAnchor constraintEqualToAnchor:effectView.bottomAnchor],
-		[self.view.leadingAnchor constraintEqualToAnchor:effectView.leadingAnchor],
-		[self.view.trailingAnchor constraintEqualToAnchor:effectView.trailingAnchor],
+		[self.view.topAnchor constraintEqualToAnchor:_topColorView.topAnchor],
+		[self.view.safeAreaLayoutGuide.topAnchor constraintEqualToAnchor:_topColorView.bottomAnchor],
+		[self.view.leadingAnchor constraintEqualToAnchor:_topColorView.leadingAnchor],
+		[self.view.trailingAnchor constraintEqualToAnchor:_topColorView.trailingAnchor],
 	]];
 	
 	self.popupItem.image = [UIImage imageNamed:@"AppIcon60x60"];
@@ -54,17 +63,26 @@
 		[[UIBarButtonItem alloc] initWithImage:LNSystemImage(@"suit.heart.fill", NO) style:UIBarButtonItemStylePlain target:self action:@selector(_navigate:)],
 	];
 	
-	NSString* title = @"Welcome to LNPopupController!";
+	NSString* title = NSLocalizedString(@"Welcome to LNPopupController!", @"");
 	
 	NSMutableAttributedString* attribTitle = [[NSMutableAttributedString alloc] initWithString:title];
 	[attribTitle addAttributes:@{
-		NSFontAttributeName: [[UIFontMetrics metricsForTextStyle:UIFontTextStyleHeadline] scaledFontForFont:[UIFont systemFontOfSize:15 weight:UIFontWeightMedium]],
+		NSFontAttributeName: [[UIFontMetrics metricsForTextStyle:UIFontTextStyleBody] scaledFontForFont:[UIFont systemFontOfSize:15 weight:UIFontWeightMedium]],
 	} range:NSMakeRange(0, attribTitle.length)];
 	[attribTitle addAttributes: @{
-		NSFontAttributeName: [[UIFontMetrics metricsForTextStyle:UIFontTextStyleSubheadline] scaledFontForFont:[UIFont systemFontOfSize:16 weight:UIFontWeightHeavy]],
-	} range:[title rangeOfString:@"LNPopupController"]];
+		NSFontAttributeName: [[UIFontMetrics metricsForTextStyle:UIFontTextStyleHeadline] scaledFontForFont:[UIFont systemFontOfSize:16 weight:UIFontWeightHeavy]],
+	} range:[title rangeOfString:NSLocalizedString(@"LNPopupController", @"")]];
 	
 	self.popupItem.attributedTitle = attribTitle;
+	
+	[_webView addObserver:self forKeyPath:@"themeColor" options:NSKeyValueObservingOptionNew context:NULL];
+	[_webView addObserver:self forKeyPath:@"underPageBackgroundColor" options:NSKeyValueObservingOptionNew context:NULL];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
+{
+//	_effectView.effect = nil;
+	_topColorView.backgroundColor = _webView.themeColor;
 }
 
 - (IBAction)_navigate:(id)sender

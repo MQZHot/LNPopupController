@@ -96,10 +96,6 @@ class MapViewController: UIViewController, UISearchBarDelegate {
 			if let searchTextField = customMapBar.searchBar.value(forKey: "searchField") as? UITextField, let clearButton = searchTextField.value(forKey: "_clearButton") as? UIButton {
 				clearButton.addTarget(self, action: #selector(self.clearButtonTapped), for: .primaryActionTriggered)
 			}
-			
-			popupBar.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-			popupBar.layer.cornerRadius = 15
-			popupBar.layer.cornerCurve = .continuous
 		} else {
 			//Manual layout bar scene
 			shouldExtendPopupBarUnderSafeArea = false
@@ -115,7 +111,7 @@ class MapViewController: UIViewController, UISearchBarDelegate {
 		popupContentVC = (storyboard!.instantiateViewController(withIdentifier: "PopupContentController") as! LocationsController)
 		popupContentVC.tableView.backgroundColor = .clear
 		
-		presentPopupBar(withContentViewController: self.popupContentVC, animated: animated, completion: nil)
+		presentPopupBar(with: self.popupContentVC, animated: animated, completion: nil)
 #endif
 	}
 	

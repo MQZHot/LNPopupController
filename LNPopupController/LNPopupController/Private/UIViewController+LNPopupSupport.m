@@ -88,9 +88,7 @@ static NSString* const ePCIEBase64 = @"X2V4aXN0aW5nUHJlc2VudGF0aW9uQ29udHJvbGxlc
 		[NSException raise:NSInternalInconsistencyException format:@"Content view controller cannot be the same as the presenting controller."];
 	}
 	
-	self.popupContentViewController = controller;
-	
-	[self._ln_popupController presentPopupBarAnimated:animated openPopup:openPopup completion:completionBlock];
+	[self._ln_popupController presentPopupBarWithContentViewController:controller openPopup:openPopup animated:animated completion:completionBlock];
 }
 
 - (void)presentPopupBarWithContentViewController:(UIViewController*)controller animated:(BOOL)animated completion:(void(^)(void))completionBlock
@@ -161,11 +159,6 @@ static NSString* const ePCIEBase64 = @"X2V4aXN0aW5nUHJlc2VudGF0aW9uQ29udHJvbGxlc
 	}];
 }
 
-- (void)updatePopupBarAppearance
-{
-	[self setNeedsPopupBarAppearanceUpdate];
-}
-
 - (void)setNeedsPopupBarAppearanceUpdate
 {
 	[self._ln_popupController_nocreate _configurePopupBarFromBottomBar];
@@ -194,6 +187,16 @@ static NSString* const ePCIEBase64 = @"X2V4aXN0aW5nUHJlc2VudGF0aW9uQ29udHJvbGxlc
 	}
 	
 	return [self.parentViewController _isContainedInPopupController];
+}
+
+- (BOOL)_isContainedInOpenPopupController
+{
+	if(self.popupPresentationContainerViewController != nil)
+	{
+		return self.popupPresentationContainerViewController._ln_popupController_nocreate.popupControllerPublicState == LNPopupPresentationStateOpen;
+	}
+	
+	return [self.parentViewController _isContainedInOpenPopupController];
 }
 
 - (BOOL)_isContainedInPopupControllerOrDeallocated
@@ -305,6 +308,16 @@ static NSString* const ePCIEBase64 = @"X2V4aXN0aW5nUHJlc2VudGF0aW9uQ29udHJvbGxlc
 - (__kindof UIView *)viewForPopupInteractionGestureRecognizer
 {
 	return self.view;
+}
+
+- (BOOL)allowPopupHapticFeedbackGeneration
+{
+	return self._ln_popupController.wantsFeedbackGeneration;
+}
+
+- (void)setAllowPopupHapticFeedbackGeneration:(BOOL)allowPopupHapticFeedbackGeneration
+{
+	self._ln_popupController.wantsFeedbackGeneration = allowPopupHapticFeedbackGeneration;
 }
 
 @end

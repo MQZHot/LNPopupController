@@ -88,7 +88,7 @@ A popup item should always reflect the popup information about the view controll
 
 ### Managing the Popup Bar
 
-To present the popup bar, create a content controller, update its popup item and present the popup bar.
+To present the popup bar, create a content controller, update its popup item and present the popup bar using `presentPopupBar(with:animated:completion:)`.
 
 ```swift
 let demoVC = DemoPopupContentViewController()
@@ -96,8 +96,8 @@ demoVC.view.backgroundColor = .red
 demoVC.popupItem.title = "Hello World"
 demoVC.popupItem.subtitle = "And a subtitle!"
 demoVC.popupItem.progress = 0.34
-	
-tabBarController?.presentPopupBar(withContentViewController: demoVC, animated: true, completion: nil)
+    
+tabBarController?.presentPopupBar(with: demoVC, animated: true, completion: nil)
 ```
 
 You can present a new content controller while the popup bar is presented and when the popup itself is open.
@@ -108,13 +108,13 @@ To open and close the popup programatically, use `openPopup(animated:completion:
 tabBarController?.openPopup(animated: true, completion: nil)
 ```
 
-Alternatively, you can present the popup bar and open the popup in one animation, using `presentPopupBar(withContentViewController:openPopup:animated:completion:)`.
+Alternatively, you can present the popup bar and open the popup in one animation, using `presentPopupBar(with:openPopup:animated:completion:)`.
 
 ```swift
-tabBarController?.presentPopupBar(withContentViewController: demoVC, openPopup:true, animated: true, completion: nil)
+tabBarController?.presentPopupBar(with: demoVC, openPopup:true, animated: true, completion: nil)
 ```
 
-To dismiss the popup bar, use `dismissPopupBarAnimated:completion:`.
+To dismiss the popup bar, use `dismissPopupBar(animated:completion:)`.
 
 ```swift
 tabBarController?.dismissPopupBar(animated: true, completion: nil)
@@ -156,7 +156,7 @@ The defaults are:
 
   * Snap interaction style
 
-  * Chevron close button style
+  * Grabber close button style
 
   * No progress view style
 
@@ -230,26 +230,69 @@ Supplying long text for the title and/or subtitle will result in a scrolling tex
 
 #### Popup Bar Customization
 
-`LNPopupBar` exposes API to customize the default popup bar's appearance, either through `UIAppearance` API or directly on a specific popup bar object. Use `LNPopupBarAppearance` objects to define the standard appearance of the bar.
+`LNPopupBar` exposes many APIs to customize the default popup bar's appearance. Use `LNPopupBarAppearance` objects to define the standard appearance of the bar.
 
-Remember to set the `inheritsAppearanceFromDockingView` property to `false`, or your customization is likely to be overridden by the bottom bar’s appearance.
+Remember to set the `inheritsAppearanceFromDockingView` property to `false`, or some of your customizations might be overridden by the bottom bar’s appearance.
 
 ```swift
 let appearance = LNPopupBarAppearance()
 appearance.titleTextAttributes = AttributeContainer()
-				.font(UIFontMetrics(forTextStyle: .headline).scaledFont(for: UIFont(name: "Chalkduster", size: 14)!))
-				.foregroundColor(UIColor.yellow)
+    .font(UIFontMetrics(forTextStyle: .headline).scaledFont(for: UIFont(name: "Chalkduster", size: 14)!))
+    .foregroundColor(UIColor.yellow)
 appearance.subtitleTextAttributes = AttributeContainer()
-				.font(UIFontMetrics(forTextStyle: .subheadline).scaledFont(for: UIFont(name: "Chalkduster", size: 12)!))
-				.foregroundColor(UIColor.green)
-appearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterialDark)
+    .font(UIFontMetrics(forTextStyle: .subheadline).scaledFont(for: UIFont(name: "Chalkduster", size: 12)!))
+    .foregroundColor(UIColor.green)
 
-navigationController?.popupBar.inheritsAppearanceFromDockingView = false
+let floatingBarBackgroundShadow = NSShadow()
+floatingBarBackgroundShadow.shadowColor = UIColor.red
+floatingBarBackgroundShadow.shadowOffset = .zero
+floatingBarBackgroundShadow.shadowBlurRadius = 8.0
+appearance.floatingBarBackgroundShadow = floatingBarBackgroundShadow
+
+let imageShadow = NSShadow()
+imageShadow.shadowColor = UIColor.yellow
+imageShadow.shadowOffset = .zero
+imageShadow.shadowBlurRadius = 3.0
+appearance.imageShadow = imageShadow
+
+if navigationController?.popupBar.barStyle == .floating {
+    appearance.floatingBackgroundEffect = UIBlurEffect(style: .dark)
+} else {
+    appearance.backgroundEffect = UIBlurEffect(style: .dark)
+    navigationController?.popupBar.inheritsAppearanceFromDockingView = false
+}
+
 navigationController?.popupBar.standardAppearance = appearance
 navigationController?.popupBar.tintColor = .yellow
 ```
 
-<p align="center"><img src="./Supplements/floating_custom.png" width="360"/> <img src="./Supplements/modern_custom.png" width="360"/> <img src="./Supplements/custom1.png" width="360"/></p>
+<p align="center"><img src="./Supplements/floating_custom.png" width="360"/> <img src="./Supplements/modern_custom.png" width="360"/> <img src="./Supplements/compact_custom.png" width="360"/></p>
+
+#### System Interactions
+
+The `hidesBottomBarWhenPushed` property is supported for navigation and tab bar controllers. When set to `true`, the popup bar will transition to the bottom of the pushed controller's view. Setting  `isToolbarHidden = true` and calling `setToolbarHidden(_:animated:)` are also supported.
+
+<p align="center"><img src="./Supplements/hidesBottomBar_TabBar.gif" width="360"/> <img src="./Supplements/hidesBottomBar_Toolbar.gif" width="360"/></p>
+
+Status bar management of the popup content view controller is respected and applied when appropriate.
+
+<p align="center"><img src="./Supplements/statusbar_style.gif" width="360"/> <img src="./Supplements/statusbar_hidden.gif" width="360"/></p>
+
+Home indicator visibility control is respected and applied when appropriate.
+
+Context menus are supported. Add a `UIContextMenuInteraction` interaction object to the popup bar, and it will behave as expected.
+
+<p align="center"><img src="./Supplements/popup_bar_context_menu.png" width="360"/></p>
+
+Pointer interactions are supported, and a default implementation is provided for system bar styles.
+
+For custom popup bar controllers, the `LNPopupCustomBarViewController` class implements the `UIPointerInteractionDelegate` protocol. Implement the protocol's methods inside your subclass to implement custom pointer interactions.
+
+<p align="center"><img src="./Supplements/pointer_interaction.gif"/></p>
+
+Starting with iOS 15, scroll edge appearance is automatically disabled for toolbars and tab bars when a popup bar is presented, regardless of the scroll position of the content. Once the popup bar is dismissed, the scroll edge appearance is restored.
+
+<p align="center"><img src="./Supplements/scroll_edge_appearance.gif" width="360"/></p>
 
 #### Custom Popup Bars
 
@@ -267,29 +310,8 @@ Finally, set the `customBarViewController` property of the popup bar object to a
 
 The included demo project includes two example custom popup bar scenes.
 
-#### System Interactions
-
-The `hidesBottomBarWhenPushed` property is supported for navigation and tab bar controllers. When set to `true`, the popup bar will transition to the bottom of the pushed controller's view. Setting  `isToolbarHidden = true` and calling `setToolbarHidden(_:animated:)` are also supported.
-
-<p align="center"><img src="./Supplements/hidesBottomBar_TabBar.gif" width="360"/> <img src="./Supplements/hidesBottomBar_Toolbar.gif" width="360"/></p>
-
-Status bar management of the popup content view controller is respected and applied when appropriate.
-
-<p align="center"><img src="./Supplements/statusbar_style.gif" width="360"/> <img src="./Supplements/statusbar_hidden.gif" width="360"/></p>
-
-Context menus are supported. Add a `UIContextMenuInteraction` interaction object to the popup bar, and it will behave as expected.
-
-<p align="center"><img src="./Supplements/popup_bar_context_menu.png" width="360"/></p>
-
-Pointer interactions are supported, and a default implementation is provided for system bar styles.
-
-For custom popup bar controllers, the `LNPopupCustomBarViewController` class implements the `UIPointerInteractionDelegate` protocol. Implement the protocol's methods inside your subclass to implement custom pointer interactions.
-
-<p align="center"><img src="./Supplements/pointer_interaction.gif"/></p>
-
-Starting with iOS 15, scroll edge appearance is automatically disabled for toolbars and tab bars when a popup bar is presented, regardless of the scroll position of the content. Once the popup bar is dismissed, the scroll edge appearance is restored.
-
-<p align="center"><img src="./Supplements/scroll_edge_appearance.gif" width="360"/></p>
+> [!TIP]
+> Only implement a custom popup bar if you need a design that is significantly different than the provided [standard popup bar styles](#bar-style). A lot of care and effort has been put into integrating these popup bar styles with the UIKit system, including look, feel, transitions and interactions. Custom bars provide a blank canvas for you to implement a bar of your own, but if you end up recreating a bar design that is similar to a standard bar style, you are more than likely losing subtleties that have been added and perfected over the years in the standard implementations. Instead, consider using the [many customization APIs](#popup-bar-customization) to tweak the standard bar styles to fit your app’s design.
 
 #### ProMotion Support
 
@@ -305,7 +327,8 @@ When opening the popup, the system queries the `viewForPopupInteractionGestureRe
 
 You can implement the delegate of the interaction gesture recognizer in order to influence its behavior, such as preventing popup interaction when the user is interacting with other controls or views inside the popup content.
 
-**Note:** If you disable the gesture recognizer after opening the popup, you must monitor the state of the popup and reenable the gesture recognizer once closed by the user or through code. Instead, consider implementing the gesture recognizer's delegate and providing custom logic to disable the interaction.
+> [!CAUTION]
+> If you disable the gesture recognizer after opening the popup, you must monitor the state of the popup and reenable the gesture recognizer once closed by the user or through code. Instead, consider implementing the gesture recognizer's delegate and providing custom logic to disable the interaction.
 
 #### Full Right-to-Left Support
 
@@ -353,9 +376,9 @@ demoVC.popupItem.accessibilityProgressValue = "\(accessibilityDateComponentsForm
 
 ## Notes
 
-* Legacy non-translucent tab bar and toolbars are not supported and can cause visual artifacts or layout glitches. Apple has many problem with such bars, and supporting those is not a priority for `LNPopupController`
-  * The correct way to achieve an opaque bar is to use the `UIBarAppearance.configureWithOpaqueBackground()` API, which is supported by `LNPopupController`
-* Manually setting bottom bar properties, such as setting a tab bar’s or a toolbar’s `isHidden = true` **is explicitly discouraged by Apple and not supported by the framework**; it will lead to undefined behavior by the framework
+* Legacy non-translucent tab bar and toolbars are not supported and can cause visual artifacts or layout glitches. Apple has many problem with such bars, and supporting those is not a priority for `LNPopupController`.
+  * The correct way to achieve an opaque bar is to use the `UIBarAppearance.configureWithOpaqueBackground()` API, which is supported by `LNPopupController`.
+* Manually setting bottom bar properties, such as setting a tab bar’s or a toolbar’s `isHidden = true` **is explicitly discouraged by Apple and not supported by the framework**; it will lead to undefined behavior by the framework.
 
 ## Acknowledgements
 

@@ -22,12 +22,12 @@
 		backgroundView.layer.cornerRadius = 15
 		view.addSubview(backgroundView)
 		
-		centeredButton.setTitle("Centered", for: .normal)
+		centeredButton.setTitle(NSLocalizedString("Centered", comment: ""), for: .normal)
 		centeredButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .headline)
 		centeredButton.sizeToFit()
 		view.addSubview(centeredButton)
 		
-		leftButton.setTitle("<- Left", for: .normal)
+		leftButton.setTitle("<- \(NSLocalizedString("Leading", comment: ""))", for: .normal)
 		leftButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .headline)
 		leftButton.sizeToFit()
 		view.addSubview(leftButton)
@@ -38,9 +38,16 @@
 	public override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
 		
-		backgroundView.frame = view.bounds.insetBy(dx: view.layoutMargins.left, dy: 2).offsetBy(dx: 0, dy: -2)
+		let insetLeft = CGFloat.maximum(view.safeAreaInsets.left, 20)
+		let insetRight = CGFloat.maximum(view.safeAreaInsets.right, 20)
+		
+		backgroundView.frame = CGRect(x: insetLeft, y: 2, width: view.bounds.width - insetLeft - insetRight, height: view.bounds.height - 4)
 		centeredButton.center = backgroundView.center
-		leftButton.frame = CGRect(x: view.layoutMargins.left + 20, y: backgroundView.center.y - leftButton.bounds.size.height / 2, width: leftButton.bounds.size.width, height: leftButton.bounds.size.height)
+		if UIView.userInterfaceLayoutDirection(for: view.semanticContentAttribute) == .leftToRight {
+			leftButton.frame = CGRect(x: insetLeft + 20, y: backgroundView.center.y - leftButton.bounds.size.height / 2, width: leftButton.bounds.size.width, height: leftButton.bounds.size.height)
+		} else {
+			leftButton.frame = CGRect(x: view.bounds.width - insetRight - leftButton.bounds.width - 20, y: backgroundView.center.y - leftButton.bounds.size.height / 2, width: leftButton.bounds.size.width, height: leftButton.bounds.size.height)
+		}
 	}
 	
 	public override var wantsDefaultTapGestureRecognizer: Bool {

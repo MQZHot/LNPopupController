@@ -39,6 +39,8 @@ extern const NSUInteger _LNPopupPresentationStateTransitioning;
 
 @property (nonatomic, weak) UIViewController* effectiveStatusBarUpdateController;
 
+@property (assign) BOOL wantsFeedbackGeneration;
+
 - (CGFloat)_percentFromPopupBar;
 
 - (void)_setContentToState:(LNPopupPresentationState)state;
@@ -46,7 +48,7 @@ extern const NSUInteger _LNPopupPresentationStateTransitioning;
 
 - (void)_movePopupBarAndContentToBottomBarSuperview;
 
-- (void)presentPopupBarAnimated:(BOOL)animated openPopup:(BOOL)open completion:(void(^)(void))completionBlock;
+- (void)presentPopupBarWithContentViewController:(UIViewController*)contentViewController openPopup:(BOOL)open animated:(BOOL)animated completion:(void(^)(void))completionBlock;
 - (void)openPopupAnimated:(BOOL)animated completion:(void(^)(void))completionBlock;
 - (void)closePopupAnimated:(BOOL)animated completion:(void(^)(void))completionBlock;
 - (void)dismissPopupBarAnimated:(BOOL)animated completion:(void(^)(void))completionBlock;

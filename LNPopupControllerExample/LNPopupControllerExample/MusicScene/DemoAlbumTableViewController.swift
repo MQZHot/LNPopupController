@@ -13,7 +13,6 @@ import LNPopupController
 import LoremIpsum
 
 class DemoAlbumTableViewController: UITableViewController {
-
 	@IBOutlet var demoAlbumImageView: UIImageView!
 	
 	var images: [UIImage]
@@ -50,7 +49,7 @@ class DemoAlbumTableViewController: UITableViewController {
 		tableView.separatorEffect = UIVibrancyEffect(blurEffect: UIBlurEffect(style: .systemThinMaterial))
 		
 #if LNPOPUP
-		let barStyle = LNPopupBar.Style(rawValue: UserDefaults.standard.object(forKey: PopupSettingsBarStyle)  as? Int ?? 0)!
+		let barStyle = LNPopupBar.Style(rawValue: UserDefaults.settings.object(forKey: PopupSetting.barStyle)  as? Int ?? 0)!
 		tabBarController?.popupBar.barStyle = barStyle
 	
 		if tabBarController?.popupBar.effectiveBarStyle == .floating {
@@ -70,8 +69,19 @@ class DemoAlbumTableViewController: UITableViewController {
 		
 		for idx in 1...self.tableView(tableView, numberOfRowsInSection: 0) {
 			images += [UIImage(named: "genre\(idx)")!]
-			titles += [LoremIpsum.title]
-			subtitles += [LoremIpsum.sentence]
+			
+			var title = LoremIpsum.title
+			var sentence = LoremIpsum.sentence
+			
+#if LNPOPUP
+			if UserDefaults.standard.bool(forKey: PopupSetting.forceRTL) {
+				title = title.applyingTransform(.latinToHebrew, reverse: false)!
+				sentence = sentence.applyingTransform(.latinToHebrew, reverse: false)!
+			}
+#endif
+			
+			titles.append(title)
+			subtitles.append(sentence)
 		}
     }
 	
@@ -116,7 +126,7 @@ class DemoAlbumTableViewController: UITableViewController {
 		popupContentController.popupItem.accessibilityHint = NSLocalizedString("Double Tap to Expand the Mini Player", comment: "")
 		tabBarController?.popupContentView.popupCloseButton.accessibilityLabel = NSLocalizedString("Dismiss Now Playing Screen", comment: "")
 		
-		tabBarController?.presentPopupBar(withContentViewController: popupContentController, animated: true, completion: nil)
+		tabBarController?.presentPopupBar(with: popupContentController, animated: true, completion: nil)
 		tabBarController?.popupBar.imageView.layer.cornerRadius = 3
 		tabBarController?.popupBar.tintColor = UIColor.label
 		tabBarController?.popupBar.progressViewStyle = .top

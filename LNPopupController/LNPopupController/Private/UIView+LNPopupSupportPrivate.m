@@ -25,8 +25,8 @@ static const void* LNPopupTabBarProgressKey = &LNPopupTabBarProgressKey;
 static const void* LNPopupBarBackgroundViewForceAnimatedKey = &LNPopupBarBackgroundViewForceAnimatedKey;
 
 #if ! LNPopupControllerEnforceStrictClean
-//backdropGroupName
-static NSString* _bGN = @"YmFja2Ryb3BHcm91cE5hbWU=";
+//groupName
+static NSString* _gN = @"Z3JvdXBOYW1l";
 //_UINavigationBarVisualProvider
 static NSString* _UINBVP = @"X1VJTmF2aWdhdGlvbkJhclZpc3VhbFByb3ZpZGVy";
 //_UINavigationBarVisualProviderLegacyIOS
@@ -55,8 +55,34 @@ static NSString* _UBB = @"X1VJQmFyQmFja2dyb3VuZA==";
 static NSString* _tBVA = @"dHJhbnNpdGlvbkJhY2tncm91bmRWaWV3c0FuaW1hdGVkOg==";
 //_backgroundView
 static NSString* _bV = @"X2JhY2tncm91bmRWaWV3";
+//_registeredScrollToTopViews
+static NSString* _rSTTV = @"X3JlZ2lzdGVyZWRTY3JvbGxUb1RvcFZpZXdz";
+//_safeAreaInsetsFrozen
+static NSString* _sAIF = @"X3NhZmVBcmVhSW5zZXRzRnJvemVu";
 
 #endif
+
+@interface __LNPopupUIViewFrozenInsets : NSObject @end
+@implementation __LNPopupUIViewFrozenInsets
+
++ (void)load
+{
+	@autoreleasepool 
+	{
+		const char* encoding = method_getTypeEncoding(class_getInstanceMethod(UIView.class, @selector(needsUpdateConstraints)));
+		//_safeAreaInsetsFrozen
+		class_addMethod(self, NSSelectorFromString(_LNPopupDecodeBase64String(_sAIF)), imp_implementationWithBlock(^ (id self, SEL _cmd) {
+			return YES;
+		}), encoding);
+	}
+}
+
+//- (BOOL)_safeAreaInsetsFrozen
+//{
+//	return YES;
+//}
+
+@end
 
 @interface UIViewController ()
 
@@ -97,8 +123,8 @@ static NSString* _bV = @"X2JhY2tncm91bmRWaWV3";
 
 + (void)load
 {
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
+	@autoreleasepool 
+	{
 #if ! LNPopupControllerEnforceStrictClean
 		//updateBackgroundGroupName
 		SEL updateBackgroundGroupNameSEL = NSSelectorFromString(_LNPopupDecodeBase64String(_uBGN));
@@ -110,14 +136,16 @@ static NSString* _bV = @"X2JhY2tncm91bmRWaWV3";
 				static NSString* key = nil;
 				static dispatch_once_t onceToken;
 				dispatch_once(&onceToken, ^{
-					//backdropGroupName
-					key = _LNPopupDecodeBase64String(_bGN);
+					//groupName
+					key = _LNPopupDecodeBase64String(_gN);
 				});
 				
-				NSString* groupName = [_self valueForKey:key];
+				id backgroundView = [_self valueForKey:@"backgroundView"];
+				
+				NSString* groupName = [backgroundView valueForKey:key];
 				if([groupName hasSuffix:@"🤡"] == NO)
 				{
-					[_self setValue:[NSString stringWithFormat:@"%@🤡", groupName] forKey:key];
+					[backgroundView setValue:[NSString stringWithFormat:@"%@🤡", groupName] forKey:key];
 				}
 			};
 		};
@@ -146,6 +174,7 @@ static NSString* _bV = @"X2JhY2tncm91bmRWaWV3";
 			method_setImplementation(m, imp_implementationWithBlock(trampoline(orig)));
 		}
 		
+		//_didMoveFromWindow:toWindow:
 		NSString* sel = _LNPopupDecodeBase64String(_dMFWtW);
 		LNSwizzleMethod(self,
 						NSSelectorFromString(sel),
@@ -155,7 +184,7 @@ static NSString* _bV = @"X2JhY2tncm91bmRWaWV3";
 						@selector(didMoveToWindow),
 						@selector(_ln_didMoveToWindow));
 #endif
-	});
+	}
 }
 
 - (void)_ln_triggerBarAppearanceRefreshIfNeededTriggeringLayout:(BOOL)layout
@@ -275,7 +304,69 @@ static void _LNNotify(UIView* self, NSMutableArray<LNInWindowBlock>* waiting)
 #endif
 }
 
+- (void)_ln_freezeInsets
+{
+	LNDynamicallySubclass(self, __LNPopupUIViewFrozenInsets.class);
+}
+
 @end
+
+#if ! LNPopupControllerEnforceStrictClean
+@interface UIWindow (ScrollToTopFix) @end
+@implementation UIWindow (ScrollToTopFix)
+
++ (void)load
+{
+	@autoreleasepool
+	{
+		//_registeredScrollToTopViews
+		NSString* selName = _LNPopupDecodeBase64String(_rSTTV);
+		LNSwizzleMethod(self,
+						NSSelectorFromString(selName),
+						@selector(_ln_rSTTV));
+	}
+}
+
+//_registeredScrollToTopViews
+- (NSArray*)_ln_rSTTV
+{
+	NSArray* rv = [self _ln_rSTTV];
+	NSMutableArray* popupRV = [NSMutableArray new];
+	
+	//_viewControllerForAncestor
+	static NSString* vCFA = nil;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		vCFA = _LNPopupDecodeBase64String(_vCFA);
+	});
+	
+	for(UIView* scrollToTopCandidate in rv)
+	{
+		UIViewController* vc = [scrollToTopCandidate valueForKey:vCFA];
+		
+		if(vc == nil)
+		{
+			continue;
+		}
+		
+		BOOL fromPopup = vc._isContainedInOpenPopupController;
+		if(fromPopup)
+		{
+			[popupRV addObject:scrollToTopCandidate];
+		}
+	}
+	
+	if(popupRV.count > 0)
+	{
+		return popupRV;
+	}
+	
+	return rv;
+}
+
+@end
+
+#endif
 
 #if TARGET_OS_MACCATALYST
 	
@@ -382,6 +473,7 @@ static BOOL __ln_scrollEdgeAppearanceRequiresFadeForPopupBar(id bottomBar, LNPop
 	{
 		if(@available(iOS 15.0, *))
 		{
+			LNSwizzleMethod(self, @selector(layoutSubviews), @selector(_ln_layoutSubviews));
 #if ! LNPopupControllerEnforceStrictClean
 			LNSwizzleMethod(self, @selector(standardAppearance), @selector(_lnpopup_standardAppearance));
 			LNSwizzleMethod(self, @selector(compactAppearance), @selector(_lnpopup_compactAppearance));
@@ -392,6 +484,13 @@ static BOOL __ln_scrollEdgeAppearanceRequiresFadeForPopupBar(id bottomBar, LNPop
 			LNSwizzleMethod(self, @selector(compactScrollEdgeAppearance), @selector(_lnpopup_compactScrollEdgeAppearance));
 		}
 	}
+}
+
+- (void)_ln_layoutSubviews
+{
+	[self _ln_layoutSubviews];
+	
+	[self._ln_attachedPopupController _configurePopupBarFromBottomBarModifyingGroupingIdentifier:NO];
 }
 
 - (void)_ln_triggerBarAppearanceRefreshIfNeededTriggeringLayout:(BOOL)layout
@@ -648,7 +747,7 @@ static BOOL __ln_scrollEdgeAppearanceRequiresFadeForPopupBar(id bottomBar, LNPop
 #if ! LNPopupControllerEnforceStrictClean
 - (UITabBarAppearance *)_lnpopup_standardAppearance
 {
-//	__weak __typeof(self) weakSelf = self;
+	__weak __typeof(self) weakSelf = self;
 	
 	UITabBarAppearance* rv = self._lnpopup_standardAppearance;
 	
@@ -657,12 +756,10 @@ static BOOL __ln_scrollEdgeAppearanceRequiresFadeForPopupBar(id bottomBar, LNPop
 		return rv;
 	}
 	
-	return rv;
-	
-//	return (id)[[_LNPopupUIBarAppearanceProxy alloc] initWithProxiedObject:rv shadowColorHandler:^BOOL{
-//		LNPopupBar* popupBar = _LNPopupBarForBottomBarIfInPopupPresentation(weakSelf);
-//		return popupBar != nil && popupBar.effectiveBarStyle == LNPopupBarStyleFloating;
-//	}];
+	return (id)[[_LNPopupUIBarAppearanceProxy alloc] initWithProxiedObject:rv shadowColorHandler:^BOOL{
+		LNPopupBar* popupBar = _LNPopupBarForBottomBarIfInPopupPresentation(weakSelf);
+		return popupBar != nil && popupBar.effectiveBarStyle == LNPopupBarStyleFloating;
+	}];
 }
 #endif
 

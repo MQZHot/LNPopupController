@@ -8,6 +8,7 @@
 
 #if LNPOPUP
 @import LNPopupController;
+#import <LNPopupController/LNPopupController-Swift.h>
 #endif
 #import "DemoViewController.h"
 #import "DemoPopupContentViewController.h"
@@ -18,6 +19,7 @@
 #import "LNPopupControllerExample-Swift.h"
 #endif
 #import "LNPopupDemoContextMenuInteraction.h"
+#import "LNPopupControllerExample-Bridging-Header.h"
 @import UIKit;
 
 @interface DemoView : UIView @end
@@ -52,6 +54,8 @@
 	__weak IBOutlet UIButton *_nextButton;
 	
 	__weak IBOutlet UIBarButtonItem *_barStyleButton;
+	__weak IBOutlet UIBarButtonItem *_hideTabBarButton;
+	
 	BOOL _alreadyPresentedAutomatically;
 }
 
@@ -86,10 +90,6 @@
 			NSUInteger tabIdx = [self.tabBarController.viewControllers indexOfObject:self.navigationController ?: self];
 			self.colorSeedString = [NSString stringWithFormat:@"tab_%@", @(tabIdx)];
 		}
-		else if(self.navigationController != nil)
-		{
-			self.colorSeedString = [NSString stringWithFormat:@"tab_109"];
-		}
 		else
 		{
 			self.colorSeedString = @"nil";
@@ -97,7 +97,7 @@
 		self.colorSeedCount = 0;
 	}
 	
-	if([NSUserDefaults.standardUserDefaults boolForKey:DemoAppDisableDemoSceneColors] == NO)
+	if([NSUserDefaults.settingDefaults boolForKey:PopupSettingDisableDemoSceneColors] == NO)
 	{
 		NSString* seed = [NSString stringWithFormat:@"%@%@", self.colorSeedString, self.colorSeedCount == 0 ? @"" : [NSString stringWithFormat:@"%@", @(self.colorSeedCount)]];
 		self.view.backgroundColor = LNSeedAdaptiveColor(seed);
@@ -106,11 +106,40 @@
 	{
 		self.view.backgroundColor = UIColor.systemBackgroundColor;
 	}
+	
+	if(@available(iOS 18.0, *))
+	{
+		_hideTabBarButton.hidden = self.tabBarController == nil && self.navigationController == nil;
+	}
+	else
+	{
+		if (@available(iOS 16.0, *))
+		{
+			_hideTabBarButton.hidden = self.navigationController == nil || self.tabBarController != nil;
+		}
+		else
+		{
+			_hideTabBarButton.enabled = self.navigationController == nil || self.tabBarController != nil;
+		}
+	}
+	
+//	UIViewController* settings = [[UIStoryboard storyboardWithName:@"Settings" bundle:nil] instantiateViewControllerWithIdentifier:@"SettingsView"];
+//	[self addChildViewController:settings];
+//	[self.view insertSubview:settings.view atIndex:0];
+//	settings.view.frame = self.view.bounds;
+//	[settings didMoveToParentViewController:self];
 }
 
 - (void)viewSafeAreaInsetsDidChange
 {
 	[super viewSafeAreaInsetsDidChange];
+}
+
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+	[super traitCollectionDidChange:previousTraitCollection];
+	
+	[self updateBottomDockingViewEffectForBarPresentation];
 }
 
 - (void)viewIsAppearing:(BOOL)animated
@@ -174,23 +203,56 @@
 
 - (void)updateBottomDockingViewEffectForBarPresentation
 {
-#if LNPOPUP
-	LNPopupBarStyle popupBarStyle = [[[NSUserDefaults standardUserDefaults] objectForKey:PopupSettingsBarStyle] unsignedIntegerValue];
-	if(popupBarStyle == LNPopupBarStyleFloating || (popupBarStyle == LNPopupBarStyleDefault && NSProcessInfo.processInfo.operatingSystemVersion.majorVersion >= 17))
+	UINavigationBarAppearance* nba = nil;
+	
+	BOOL disableScrollEdgeAppearance = [NSUserDefaults.settingDefaults boolForKey:PopupSettingDisableScrollEdgeAppearance];
+	if(disableScrollEdgeAppearance)
 	{
+		nba = [UINavigationBarAppearance new];
+		[nba configureWithDefaultBackground];
+	}
+	
+#if LNPOPUP
+	LNPopupBarStyle popupBarStyle = [[NSUserDefaults.settingDefaults objectForKey:PopupSettingBarStyle] unsignedIntegerValue];
+	if(popupBarStyle == LNPopupBarStyleFloating || (popupBarStyle == LNPopupBarStyleDefault && NSProcessInfo.processInfo.operatingSystemVersion.majorVersion >= 17))
+#endif
+	{
+		UIBlurEffect* effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemThinMaterial];
+		
+#if LNPOPUP
+		nba.backgroundEffect = effect;
+		
 #endif
 		UITabBarAppearance* tba = [UITabBarAppearance new];
 		[tba configureWithDefaultBackground];
-		tba.backgroundEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemMaterial];
+		tba.backgroundEffect = effect;
 		self.tabBarController.tabBar.standardAppearance = tba;
 		
 		UIToolbarAppearance* ta = [UIToolbarAppearance new];
 		[ta configureWithDefaultBackground];
-		ta.backgroundEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemMaterial];
+		ta.backgroundEffect = effect;
 		self.navigationController.toolbar.standardAppearance = ta;
-#if LNPOPUP
 	}
-#endif
+	
+	self.navigationController.navigationBar.scrollEdgeAppearance = nba;
+	self.navigationController.navigationBar.compactScrollEdgeAppearance = nba;
+	
+	UITabBarAppearance* tba = nil;
+	
+	if(disableScrollEdgeAppearance)
+	{
+		tba = [[UITabBarAppearance alloc] initWithBarAppearance:nba];
+	}
+	self.tabBarController.tabBar.scrollEdgeAppearance = tba;
+	
+	UIToolbarAppearance* ta = nil;
+	
+	if(disableScrollEdgeAppearance)
+	{
+		ta = [[UIToolbarAppearance alloc] initWithBarAppearance:nba];
+	}
+	self.navigationController.toolbar.scrollEdgeAppearance = ta;
+	self.navigationController.toolbar.compactScrollEdgeAppearance = ta;
 }
 
 - (UIViewController*)_targetVCForPopup
@@ -270,29 +332,22 @@
 		return;
 	}
 	
-//	UIViewController* demoVC = [self.storyboard instantiateViewControllerWithIdentifier:@"SettingsTableViewController"];
 	UIViewController* demoVC = [DemoPopupContentViewController new];
 	
-	LNPopupCloseButtonStyle closeButtonStyle = [[[NSUserDefaults standardUserDefaults] objectForKey:PopupSettingsCloseButtonStyle] unsignedIntegerValue];
+	LNPopupCloseButtonStyle closeButtonStyle = [[NSUserDefaults.settingDefaults objectForKey:PopupSettingCloseButtonStyle] unsignedIntegerValue];
 	
 	targetVC.popupContentView.popupCloseButton.accessibilityLabel = NSLocalizedString(@"Custom popup button accessibility label", @"");
 	targetVC.popupContentView.popupCloseButton.accessibilityHint = NSLocalizedString(@"Custom popup button accessibility hint", @"");
 	
-	targetVC.popupBar.progressViewStyle = [[[NSUserDefaults standardUserDefaults] objectForKey:PopupSettingsProgressViewStyle] unsignedIntegerValue];
-	targetVC.popupBar.barStyle = [[[NSUserDefaults standardUserDefaults] objectForKey:PopupSettingsBarStyle] unsignedIntegerValue];
+	targetVC.popupBar.progressViewStyle = [[NSUserDefaults.settingDefaults objectForKey:PopupSettingProgressViewStyle] unsignedIntegerValue];
+	targetVC.popupBar.barStyle = [[NSUserDefaults.settingDefaults objectForKey:PopupSettingBarStyle] unsignedIntegerValue];
 	
-	targetVC.popupInteractionStyle = [[[NSUserDefaults standardUserDefaults] objectForKey:PopupSettingsInteractionStyle] unsignedIntegerValue];
+	targetVC.popupInteractionStyle = [[NSUserDefaults.settingDefaults objectForKey:PopupSettingInteractionStyle] unsignedIntegerValue];
 	targetVC.popupContentView.popupCloseButtonStyle = closeButtonStyle;
 	
-	NSNumber* marqueeEnabledSetting = [[NSUserDefaults standardUserDefaults] objectForKey:PopupSettingsMarqueeStyle];
-	NSNumber* marqueeEnabledCalculated = nil;
-	if(marqueeEnabledSetting && [marqueeEnabledSetting isEqualToNumber:@0] == NO)
-	{
-		marqueeEnabledCalculated = @((BOOL)([marqueeEnabledSetting unsignedIntegerValue] - 1));
-		targetVC.popupBar.standardAppearance.marqueeScrollEnabled = marqueeEnabledCalculated.boolValue;
-	}
+	targetVC.allowPopupHapticFeedbackGeneration = [NSUserDefaults.settingDefaults boolForKey:PopupSettingHapticFeedbackEnabled];
 	
-	NSNumber* effectOverride = [NSUserDefaults.standardUserDefaults objectForKey:PopupSettingsVisualEffectViewBlurEffect];
+	NSNumber* effectOverride = [NSUserDefaults.settingDefaults objectForKey:PopupSettingVisualEffectViewBlurEffect];
 	if(effectOverride != nil && effectOverride.unsignedIntValue != 0xffff)
 	{
 		if(targetVC.popupBar.effectiveBarStyle == LNPopupBarStyleFloating)
@@ -306,10 +361,9 @@
 		}
 	}
 	
-	if([[NSUserDefaults standardUserDefaults] boolForKey:PopupSettingsEnableCustomizations])
+	if([NSUserDefaults.settingDefaults boolForKey:PopupSettingEnableCustomizations])
 	{
 		LNPopupBarAppearance* appearance = [LNPopupBarAppearance new];
-		appearance.marqueeScrollEnabled = marqueeEnabledCalculated.boolValue;
 		
 		NSMutableParagraphStyle* paragraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
 		paragraphStyle.alignment = NSTextAlignmentRight;
@@ -336,14 +390,17 @@
 		targetVC.popupBar.standardAppearance = appearance;
 	}
 	
-	targetVC.shouldExtendPopupBarUnderSafeArea = [NSUserDefaults.standardUserDefaults boolForKey:PopupSettingsExtendBar];
+	targetVC.popupBar.standardAppearance.marqueeScrollEnabled = [NSUserDefaults.settingDefaults boolForKey:PopupSettingMarqueeEnabled];
+	targetVC.popupBar.standardAppearance.coordinateMarqueeScroll = [NSUserDefaults.settingDefaults boolForKey:PopupSettingMarqueeCoordinationEnabled];
 	
-	if([NSUserDefaults.standardUserDefaults boolForKey:PopupSettingsContextMenuEnabled])
+	targetVC.shouldExtendPopupBarUnderSafeArea = [NSUserDefaults.settingDefaults boolForKey:PopupSettingExtendBar];
+	
+	if([NSUserDefaults.settingDefaults boolForKey:PopupSettingContextMenuEnabled])
 	{
 		[targetVC.popupBar addInteraction:[[LNPopupDemoContextMenuInteraction alloc] initWithTitle:YES]];
 	}
 	
-	if([[NSUserDefaults standardUserDefaults] boolForKey:PopupSettingsCustomBarEverywhereEnabled])
+	if([NSUserDefaults.settingDefaults boolForKey:PopupSettingCustomBarEverywhereEnabled])
 	{
 		targetVC.shouldExtendPopupBarUnderSafeArea = NO;
 		targetVC.popupBar.inheritsAppearanceFromDockingView = NO;
@@ -366,11 +423,33 @@
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-	segue.destinationViewController.hidesBottomBarWhenPushed = [NSUserDefaults.standardUserDefaults boolForKey:PopupSettingsHidesBottomBarWhenPushed];
+	segue.destinationViewController.hidesBottomBarWhenPushed =
+#if LNPOPUP
+	[NSUserDefaults.settingDefaults boolForKey:PopupSettingHidesBottomBarWhenPushed];
+#else
+	YES;
+#endif
 	if([segue.destinationViewController isKindOfClass:DemoViewController.class])
 	{
 		[(DemoViewController*)segue.destinationViewController setColorSeedString:self.colorSeedString];
 		[(DemoViewController*)segue.destinationViewController setColorSeedCount:self.colorSeedCount + 1];
+	}
+}
+
+- (IBAction)_hideBottomBar:(id)sender
+{
+	if(self.tabBarController != nil)
+	{
+		if(@available(iOS 18.0, *))
+		{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 180000
+			[self.tabBarController setTabBarHidden:!self.tabBarController.isTabBarHidden animated:YES];
+#endif
+		}
+	}
+	else if(self.navigationController != nil)
+	{
+		[self.navigationController setToolbarHidden:!self.navigationController.isToolbarHidden animated:YES];
 	}
 }
 
