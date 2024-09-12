@@ -2,8 +2,8 @@
 //  LNPopupController.h
 //  LNPopupController
 //
-//  Created by Leo Natan on 7/24/15.
-//  Copyright © 2015-2021 Leo Natan. All rights reserved.
+//  Created by Léo Natan on 2015-08-23.
+//  Copyright © 2015-2024 Léo Natan. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -12,7 +12,9 @@
 #import <LNPopupController/LNPopupCloseButton.h>
 #import "LNPopupContentView+Private.h"
 
-extern const NSUInteger _LNPopupPresentationStateTransitioning;
+CF_EXTERN_C_BEGIN
+
+#define _LNPopupPresentationStateTransitioning ((LNPopupPresentationState)2)
 
 @interface LNPopupController : NSObject
 
@@ -60,3 +62,5 @@ extern const NSUInteger _LNPopupPresentationStateTransitioning;
 + (CGFloat)_statusBarHeightForView:(UIView*)view;
 
 @end
+
+CF_EXTERN_C_END

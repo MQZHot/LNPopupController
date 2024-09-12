@@ -2,12 +2,14 @@
 //  UIViewController+LNPopupSupportPrivate.h
 //  LNPopupController
 //
-//  Created by Leo Natan on 7/25/15.
-//  Copyright © 2015-2021 Leo Natan. All rights reserved.
+//  Created by Léo Natan on 2015-08-23.
+//  Copyright © 2015-2024 Léo Natan. All rights reserved.
 //
 
 #import <LNPopupController/UIViewController+LNPopupSupport.h>
 #import "_LNPopupBarBackgroundView.h"
+
+CF_EXTERN_C_BEGIN
 
 @class LNPopupController;
 
@@ -32,6 +34,8 @@ void _LNPopupSupportSetPopupInsetsForViewController(UIViewController* controller
 @interface _LNPopupBottomBarSupport : UIView @end
 
 @interface UIViewController (LNPopupSupportPrivate)
+
+- (void)_ln_updateSafeAreaInsets;
 
 - (BOOL)_ln_shouldDisplayBottomShadowViewDuringTransition;
 
@@ -76,3 +80,5 @@ void _LNPopupSupportSetPopupInsetsForViewController(UIViewController* controller
 @interface _LN_UIViewController_AppearanceControl : UIViewController @end
 
 NS_ASSUME_NONNULL_END
+
+CF_EXTERN_C_END

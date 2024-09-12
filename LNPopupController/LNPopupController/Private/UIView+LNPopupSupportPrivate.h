@@ -2,8 +2,8 @@
 //  UIView+LNPopupSupportPrivate.h
 //  LNPopupController
 //
-//  Created by Leo Natan on 8/1/20.
-//  Copyright © 2015-2021 Leo Natan. All rights reserved.
+//  Created by Léo Natan on 2020-08-01.
+//  Copyright © 2015-2024 Léo Natan. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -40,6 +40,12 @@ typedef void (^LNInWindowBlock)(dispatch_block_t);
 
 @end
 
+@interface UITabBar ()
+
+@property (nonatomic, getter=_ignoringLayoutDuringTransition, setter=_setIgnoringLayoutDuringTransition:) BOOL ignoringLayoutDuringTransition;
+
+@end
+
 #if TARGET_OS_MACCATALYST
 
 @interface UIWindow (MacCatalystSupport)
@@ -51,3 +57,10 @@ typedef void (^LNInWindowBlock)(dispatch_block_t);
 #endif
 
 NS_ASSUME_NONNULL_END
+
+@interface UIScrollView (LNPopupSupportPrivate)
+
+- (BOOL)_ln_hasHorizontalContent;
+- (BOOL)_ln_hasVerticalContent;
+
+@end
